@@ -1,0 +1,235 @@
+{
+  "name": "Job Scraper",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "Run actor and get dataset",
+        "actorId": {
+          "__rl": true,
+          "value": "zn01OAlzP853oqn4Z",
+          "mode": "list",
+          "cachedResultName": "Advanced Linkedin Job Scraper (No Cookies) (harvestapi/linkedin-job-search)",
+          "cachedResultUrl": "https://console.apify.com/actors/zn01OAlzP853oqn4Z/input"
+        },
+        "customBody": "={\n  \"easyApply\": false,\n  \"industryIds\": [\n    \"4\",\n    \"5\",\n    \"6\"\n  ],\n  \"jobTitles\": [\n    \"{{ $json['ROLE?'] }}\"\n  ],\n  \"locations\": [\n    \"{{ $json['LOCATION?'] }}\"\n  ],\n  \"maxItems\": 10,\n  \"sortBy\": \"date\",\n  \"under10Applicants\": false\n}"
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "1f01acb3-375c-466c-b13b-ac583092c439",
+      "name": "Run an Actor and get dataset",
+      "credentials": {
+        "apifyApi": {
+          "id": "SVhLgN3iVOtotjbP",
+          "name": "Apify account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1mEk16NSeN1YCU8VcXKzKceBgXcMjO7v4E4-yzmRpXeE",
+          "mode": "list",
+          "cachedResultName": "Jobs for me",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mEk16NSeN1YCU8VcXKzKceBgXcMjO7v4E4-yzmRpXeE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mEk16NSeN1YCU8VcXKzKceBgXcMjO7v4E4-yzmRpXeE/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "TITLE": "={{ $json.title }}",
+            "DESCRIPTION": "={{ $json.descriptionText }}",
+            "URL": "={{ $json.linkedinUrl }}",
+            "POSTED ON": "={{ $json.postedDate }}",
+            "LOCATION": "={{ $json.location.linkedinText }}",
+            "EMPLOYMENT TYPE": "={{ $json.employmentType }}"
+          },
+          "matchingColumns": [
+            "DESCRIPTION"
+          ],
+          "schema": [
+            {
+              "id": "TITLE",
+              "displayName": "TITLE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "DESCRIPTION",
+              "displayName": "DESCRIPTION",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "URL",
+              "displayName": "URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "POSTED ON",
+              "displayName": "POSTED ON",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "LOCATION",
+              "displayName": "LOCATION",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "EMPLOYMENT TYPE",
+              "displayName": "EMPLOYMENT TYPE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        416,
+        0
+      ],
+      "id": "a38bb45d-f914-4e13-adba-d5ec110f29ba",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "v11Fg29jgTDB5ezo",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "collection": "jobs",
+        "fields": "TITLE,DESCRIPTION,URL,LOCATION,POSTED ON,EMPLOYMENT TYPE",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        624,
+        0
+      ],
+      "id": "f1a68b7c-672c-4124-a501-3a3483f77346",
+      "name": "Insert documents",
+      "credentials": {
+        "mongoDb": {
+          "id": "QShUotkze7H00OW2",
+          "name": "MongoDB account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "job-scraping",
+        "responseMode": "lastNode",
+        "responseData": "allEntries",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        16,
+        -128
+      ],
+      "id": "2b658b8c-5773-4444-99f6-1649b6f3f099",
+      "name": "Webhook",
+      "webhookId": "9eaf1fba-de13-47d7-aa77-ad8b114b6c62"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Run an Actor and get dataset": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Insert documents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Run an Actor and get dataset",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert documents": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "05f93ffb-7e96-4f17-83ba-c0d4e880f283",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e84c4ce1928e43144c8cd5969c8f915e1dfbcbf1c17427d2510b84fc6703eb39"
+  },
+  "id": "PQlCgJj0CSFfo31I",
+  "tags": []
+}

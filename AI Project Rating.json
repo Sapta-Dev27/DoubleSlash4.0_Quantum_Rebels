@@ -1,0 +1,138 @@
+{
+  "name": "AI Project Rating",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "Run actor and get dataset",
+        "actorId": {
+          "__rl": true,
+          "value": "rhben6z9tVb0X0pqS",
+          "mode": "list",
+          "cachedResultName": "Github Repository Analyzer (constant_quadruped/github-repository-analyzer)",
+          "cachedResultUrl": "https://console.apify.com/actors/rhben6z9tVb0X0pqS/input"
+        },
+        "customBody": "={\n  \"alwaysNotify\": false,\n  \"analysisDepth\": \"deep\",\n  \"compareMode\": false,\n  \"generateBadgesOutput\": true,\n  \"includeAiSummary\": true,\n  \"includeLicenseCheck\": true,\n  \"includeMonorepo\": true,\n  \"includeSecurity\": true,\n  \"includeTrends\": true,\n  \"repositories\": [\n    \"{{ $json.Repo }}\"\n  ],\n  \"trackHistory\": true,\n  \"webhookFormat\": \"json\",\n  \"maxConcurrency\": 3\n} "
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "414b3d58-1df2-42d6-accc-4a621693c5a2",
+      "name": "Run an Actor and get dataset",
+      "credentials": {
+        "apifyApi": {
+          "id": "SVhLgN3iVOtotjbP",
+          "name": "Apify account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are evaluating the quality of a GitHub repository.\n\nAnalyze the repository data provided below and rate the overall repository quality on a scale from **1 to 5**.\n\nRating scale:\n1 = Very poor (low quality, inactive, missing best practices)\n2 = Poor\n3 = Average\n4 = Good\n5 = Excellent (high quality, active, well maintained, strong practices)\n\nConsider factors such as:\n\n* Code quality score\n* Activity level\n* Repository health\n* Dependencies and structure\n* Contributors and bus factor\n* Security and best practices\n* Documentation and testing\n\nRepository data:\n{{ $json }}\n\nReturn **ONLY a single number**:\n1 or 2 or 3 or 4 or 5\n\nDo **NOT** include explanations, text, formatting, or anything else.\n\n\nTHE REPO DATA IS:\n{{ $json.basicInfo }}\n{{ $json.techStack }}\n{{ $json.contributors }}\n{{ $json.dependencies }}\n{{ $json.activity }}\n{{ $json.quality }}\n{{ $json.security }}\n{{ $json.codeQuality }}\n{{ $json.issuesPRs }}\n{{ $json.trends }}\n{{ $json.badges }}\n{{ $json.badgeMarkdown }}\n",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        432,
+        -16
+      ],
+      "id": "e86c924f-041a-4414-a7fd-14eb6f5a30e9",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "moonshotai/kimi-k2-instruct-0905",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        576,
+        160
+      ],
+      "id": "500b65e0-68e9-4747-a1bb-eb9143a257d6",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "Jq5s7MqChpbXNxrH",
+          "name": "Groq account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "formTitle": "Enter Github Repo to Generate  a Score",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Repo"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        -16,
+        0
+      ],
+      "id": "d6e34c01-c60f-4e15-94c5-29675aad34d8",
+      "name": "On form submission",
+      "webhookId": "ef476983-861b-4fd7-ac15-53a9e31bce53"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run an Actor and get dataset": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Run an Actor and get dataset",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "71e8b79d-07d4-49a2-9529-085a12b96fd5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e84c4ce1928e43144c8cd5969c8f915e1dfbcbf1c17427d2510b84fc6703eb39"
+  },
+  "id": "HDMNcaMJc7VJOyeI",
+  "tags": []
+}
