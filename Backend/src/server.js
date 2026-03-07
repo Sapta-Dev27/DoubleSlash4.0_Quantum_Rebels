@@ -12,12 +12,29 @@ import jobRoutes from "./routes/jobRoutes.js";
 import ApplicationRoutes from "./routes/applicationRoutes.js";
 import CandidateRoutes from "./routes/candidateRoutes.js";
 import RecruiterRoutes from "./routes/recruiterRoutes.js";
+import cors from 'cors';
 
 
 const PORT = process.env.PORT || 8001;
 const app = express();
-connectDB();
+
 app.use(express.json());
+
+app.use(
+  cors({
+    origin: [
+      process.env.FRONTEND_URL,
+      process.env.CLIENT_URL,
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE" , "PATCH"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+    ],
+    credentials: true,
+  })
+);
+connectDB();
 
 app.get('/health', (req, res) => {
   return res.status(200).json({

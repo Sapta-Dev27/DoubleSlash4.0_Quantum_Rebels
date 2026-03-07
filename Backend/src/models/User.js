@@ -18,7 +18,6 @@ const UserSchema=new mongoose.Schema(
         },
         userRole:{
             type:String,
-            enum:['Candidate','Recruiter'],
             required:true,
         },
         userPassword : {
