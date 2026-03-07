@@ -8,6 +8,7 @@ const createResumeSummary = async (req, res) => {
   try {
 
     const fileBuffer = req.file.buffer;
+    const userId = req.userInfo.userId;
 
     const uploadClodinaryResult = await uploadResumeToCloudinary(fileBuffer, req.file.originalname);
     const secureURL = uploadClodinaryResult.secure_url;
@@ -27,6 +28,7 @@ const createResumeSummary = async (req, res) => {
     }
 
     const createResume = await ResumeModel.create({
+      user: userId,
       resumeURL: secureURL,
       ...resumeSummary
     })
@@ -58,7 +60,7 @@ const createResumeSummary = async (req, res) => {
 const fetchResumeSummary = async (req, res) => {
   try {
     const findResumes = await ResumeModel.find();
-    const countResumes = await ResumeModel.countDocuments();
+    const userId = req.userInfo.userId;
 
     if (findResumes.length === 0) {
       return res.status(404).json({
@@ -71,7 +73,6 @@ const fetchResumeSummary = async (req, res) => {
       success: true,
       message: "Resumes fetched successfully",
       data: findResumes,
-      count: countResumes
     })
   }
   catch (error) {
@@ -87,6 +88,7 @@ const fetchResumeSummary = async (req, res) => {
 const deleteResumeSummary = async( req , res) => {
   try {
     const deleteId = req.params.id ;
+    const userId = req.userInfo.userId;
     const deleteResume = await ResumeModel.findByIdAndDelete(deleteId);
 
     if( !deleteResume) {

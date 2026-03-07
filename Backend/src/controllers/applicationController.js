@@ -5,22 +5,22 @@ import { uploadResumeToCloudinary } from '../utils/uploadToCloudinary.js'
 const applyJob = async (req, res) => {
   try {
     const jobId = req.params.jobId;
-
+    const userId = req.userInfo.userId;
     const fileBuffer = req.file.buffer;
     const uploadResult = await uploadResumeToCloudinary(fileBuffer);
     const resumeurl = uploadResult.secure_url;
 
-    /*
+
     const existing = await ApplicationModel.find({
-     job : jobId,
-     candidate : req.user._id,
+      job: jobId,
+      candidate: userId,
     })
-     if(existing){
-    return res.status(400).json({
-      message:"Already applied to this job"
-    })
-  }
-    */
+    if (existing) {
+      return res.status(400).json({
+        message: "Already applied to this job"
+      })
+    }
+
 
     const job = await JobModel.find({
       _id: jobId
@@ -35,7 +35,7 @@ const applyJob = async (req, res) => {
 
     const application = await ApplicationModel.create({
       job: jobId,
-      //candidate: req.user._id,
+      candidate: req.user._id,
       resumeURL: resumeurl,
     })
 
@@ -64,7 +64,7 @@ const applyJob = async (req, res) => {
 
 const getApplicantsForJob = async (req, res) => {
   try {
-
+    const userId = req.userInfo.userId;
     const jobId = req.params.jobId;
     const applications = await ApplicationModel.find({ job: jobId })
 
@@ -88,7 +88,8 @@ const getApplicantsForJob = async (req, res) => {
 const getMyApplications = async (req, res) => {
   try {
 
-    const findAppications = await ApplicationModel.find()
+    const userId = req.userInfo.userId;
+    const findAppications = await ApplicationModel.find({ candidate: userId });
 
     if (findAppications.length === 0) {
       return res.status(404).json({
@@ -117,6 +118,7 @@ const getMyApplications = async (req, res) => {
 
 const updateApplicationStatus = async (req, res) => {
   try {
+    const userId = req.userInfo.userId;
     const applicationId = req.params.applyId;
     const { status } = req.body;
     const updatedApplication = await ApplicationModel.findByIdAndUpdate({
@@ -149,4 +151,4 @@ const updateApplicationStatus = async (req, res) => {
   }
 }
 
-  export { applyJob, getApplicantsForJob, getMyApplications, updateApplicationStatus }
+export { applyJob, getApplicantsForJob, getMyApplications, updateApplicationStatus }

@@ -1,13 +1,16 @@
 import express from 'express';
-import { createJob, fetchAllJobs , fetchJobsById , updateJob , deleteJob} from '../controllers/jobController.js';
+import { createJob, fetchAllJobs, fetchJobsById, updateJob, deleteJob } from '../controllers/jobController.js';
+import authMiddleware from '../middlewares/authMiddleware.js';
+import candidateMiddleware from '../middlewares/candidatemiddleware.js';
+import recruiterMiddleware from '../middlewares/recruiterMiddleware.js';
 
 const router = express.Router();
 
-router.post('/create', createJob);
-router.get('/fetch', fetchAllJobs);
-router.get('/fetch/:id', fetchJobsById);
-router.put('/update/:id', updateJob);
-router.delete('/delete/:id', deleteJob);
+router.post('/create', authMiddleware, recruiterMiddleware, createJob);
+router.get('/fetch', authMiddleware, fetchAllJobs);
+router.get('/fetch/:id', authMiddleware, fetchJobsById);
+router.put('/update/:id', authMiddleware, recruiterMiddleware, updateJob);
+router.delete('/delete/:id', authMiddleware, recruiterMiddleware, deleteJob);
 
 
 export default router;

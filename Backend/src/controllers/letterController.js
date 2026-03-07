@@ -6,6 +6,7 @@ import letterModel from '../models/letter.js';
 const createCoverLetter = async (req, res) => {
   try {
     const { role, company, description } = req.body;
+    const userId = req.userInfo.userId;
     if (!role || !company || !description) {
       return res.status(400).json({
         success: false,
@@ -23,6 +24,7 @@ const createCoverLetter = async (req, res) => {
     }
 
     const saveLetter = await letterModel.create({
+      user: userId,
       jobRole: role,
       companyName: company,
       jobDescription: description,
@@ -55,9 +57,10 @@ const createCoverLetter = async (req, res) => {
 
 const fetchAllCoverLetters = async (req, res) => {
   try {
-
-    const findLetters = await letterModel.find();
-    const countDocuments = await letterModel.countDocuments();
+    const userId = req.userInfo.userId;
+    const findLetters = await letterModel.find({
+      user: userId
+    });
 
     if (findLetters.length === 0) {
       return res.status(404).json({
@@ -69,7 +72,6 @@ const fetchAllCoverLetters = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Cover letters fetched successfully",
-      total: countDocuments,
       data: findLetters
     })
   }
@@ -86,6 +88,7 @@ const fetchAllCoverLetters = async (req, res) => {
 const fetchCoverLetterById = async (req, res) => {
   try {
     const letterId = req.params.id;
+    const userId = req.userInfo.userId;
     if (!letterId) {
       return res.status(400).json({
         success: false,
@@ -116,30 +119,31 @@ const fetchCoverLetterById = async (req, res) => {
 }
 
 
-const deleteCoverLetterById = async(req , res) => {
+const deleteCoverLetterById = async (req, res) => {
   try {
-    const letterId = req.params.id ;
+    const letterId = req.params.id;
+    const userId = req.userInfo.userId;
     const deleteLetter = await letterModel.findByIdAndDelete(letterId);
 
-    if(!deleteLetter){
+    if (!deleteLetter) {
       return res.status(400).json({
-        success : false ,
-        message : "Failed to delete the cover letter. Please check the provided id and try again."
+        success: false,
+        message: "Failed to delete the cover letter. Please check the provided id and try again."
       })
     }
 
     return res.status(200).json({
-      success : true  ,
-      message : 'Deleted successfully cover letter with the provided id' ,
-      data : deleteLetter
+      success: true,
+      message: 'Deleted successfully cover letter with the provided id',
+      data: deleteLetter
     })
   }
-  catch(error){
-    console.log("Error in deleting cover letter" , error);
+  catch (error) {
+    console.log("Error in deleting cover letter", error);
     return res.status(500).json({
-    success : false ,
-     message :  'Internal server error' ,
-     error : error.message 
+      success: false,
+      message: 'Internal server error',
+      error: error.message
     })
   }
 }

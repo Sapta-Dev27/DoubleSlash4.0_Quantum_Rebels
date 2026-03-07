@@ -8,6 +8,7 @@ import InterviewModel from "../models/Interview.js";
 const conductMockInterview = async (req, res) => {
   try {
     const fileBuffer = req.file.buffer;
+    const userId = req.userInfo.userId;
     const cloudinaryResult = await uploadResumeToCloudinary(
       fileBuffer,
       req.file.originalname
@@ -30,6 +31,7 @@ const conductMockInterview = async (req, res) => {
     }
 
     const createInterview = await InterviewModel.create({
+      user : userId,
       resumeURL: filePath,
       rounds: interviewQuestions.rounds,
       status: "Generated"
@@ -45,6 +47,7 @@ const conductMockInterview = async (req, res) => {
       success: true,
       message: "Mock interview generated successfully",
       data: {
+        user : userId,
         interviewId: createInterview._id,
         resumeURL: filePath,
         status: createInterview.status,
@@ -68,9 +71,12 @@ const conductMockInterview = async (req, res) => {
 
 const fetchAllInterviews = async ( req , res) => {
   try { 
-    const interviews = await InterviewModel.find();
-    const count = await InterviewModel.countDocuments();
-     if( interviews.length == 0){
+      const userId = req.userInfo.userId;
+    const interviews = await InterviewModel.find( {
+      user : userId
+    });
+  
+     if( interviews.length ==0){
       return res.status(404).json({
         success : false ,
         message : "No interviews found"
@@ -79,7 +85,6 @@ const fetchAllInterviews = async ( req , res) => {
      return res.status(200).json({
       success : true ,
       message : "Interviews fetched successfully",
-      countInterviews : count ,
       data : interviews
      })
   }
@@ -98,6 +103,7 @@ const fetchAllInterviews = async ( req , res) => {
 const deleteInterview = async(req , res) => {
   try {
       const paramsId = req.params.id;
+        const userId = req.userInfo.userId;
       const deleteInterview = await InterviewModel.findByIdAndDelete(paramsId);
       if(!deleteInterview){
         return res.status(404).json({

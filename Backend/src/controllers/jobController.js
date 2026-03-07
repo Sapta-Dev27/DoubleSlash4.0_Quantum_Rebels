@@ -3,6 +3,7 @@ import JobModel from "../models/job.js";
 const createJob = async (req, res) => {
   try {
     const { title, company, location, jobType, experienceLevel, salary, description, skillsRequired } = req.body;
+    const userId = req.userInfo.userId;
 
     if (!title || !company || !location || !description) {
       return res.status(400).json({
@@ -12,6 +13,7 @@ const createJob = async (req, res) => {
     }
 
     const newJob = await JobModel.create({
+      recruiter : userId,
       title,
       company,
       location,
@@ -47,7 +49,10 @@ const createJob = async (req, res) => {
 
 const fetchAllJobs = async (req, res) => {
   try {
-    const findAllJobs = await JobModel.find()
+    const userId = req.userInfo.userId;
+    const findAllJobs = await JobModel.find( {
+      recruiter : userId
+    })
     if (findAllJobs.length === 0) {
       return res.status(404).json({
         success: false,
@@ -73,8 +78,9 @@ const fetchAllJobs = async (req, res) => {
 const fetchJobsById = async (req, res) => {
   try {
     const jobID = req.params.id;
+    const userId = req.userInfo.userId;
     const fetchJobById = await JobModel.findById(jobID);
-
+    
     if (!fetchJobById) {
       return res.status(404).json({
         success: false,

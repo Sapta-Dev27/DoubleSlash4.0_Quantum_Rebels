@@ -8,6 +8,7 @@ const jobMatchController = async (req, res) => {
   try {
 
     const { description } = req.body;
+    const userId = req.userInfo.userId;
 
     const fileBuffer = req.file.buffer;
     const uploadResult = await uploadResumeToCloudinary(fileBuffer);
@@ -26,6 +27,7 @@ const jobMatchController = async (req, res) => {
     }
 
     const saveAnalysis = await jobMatchModel.create({
+      user: userId,
       resumeURL: resumeURL,
       jobDescription: description,
       matchScore: analysisReslt.match_score,
@@ -61,7 +63,10 @@ const jobMatchController = async (req, res) => {
 
 const findAllJobMatches = async (req, res) => {
   try {
-    const findMatches = await jobMatchModel.find();
+    const userId = req.userInfo.userId;
+    const findMatches = await jobMatchModel.find( {
+      user: userId
+    });
 
     if (findMatches.length === 0) {
       return res.status(400).json({
@@ -115,6 +120,7 @@ const findJobMatchById = async (req, res) => {
   const deleteAnalysis = async (req, res) => {
     try {
       const deleteId = req.params.id;
+      const userId = req.userInfo.userId;
 
       const deleteAnalysis = await jobMatchModel.findByIdAndDelete(deleteId);
       if (!deleteAnalysis) {

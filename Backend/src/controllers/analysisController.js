@@ -6,6 +6,7 @@ import { parsePDF } from '../utils/pdfParser.js'
 const analyzeResume = async (req, res) => {
   try {
     const fileBuffer = req.file.buffer;
+    const userId = req.userInfo.userId;
 
     const uploadURL = await uploadResumeToCloudinary(fileBuffer);
     const resumeURL = uploadURL.secure_url;
@@ -23,6 +24,7 @@ const analyzeResume = async (req, res) => {
     }
 
     const savedAnalysis = await AnalysisModel.create({
+      user: userId,
       resumeURL: resumeURL,
       atsScore: aiAnalysis.ats_score,
       strength: aiAnalysis.strengths,
@@ -57,8 +59,11 @@ const analyzeResume = async (req, res) => {
 
 const fetchallAnalysis = async (req, res) => {
   try {
-    const fetchAll = await AnalysisModel.find()
-    const count = await AnalysisModel.countDocuments();
+    const userId = req.userInfo.userId;
+    const fetchAll = await AnalysisModel.find({
+      user: userId
+    })
+
 
     if (fetchAll.length === 0) {
       return res.status(400).json({
@@ -69,7 +74,6 @@ const fetchallAnalysis = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: 'All analysis fetched successfully',
-      count: count,
       data: fetchAll
     })
   }
@@ -84,30 +88,31 @@ const fetchallAnalysis = async (req, res) => {
 }
 
 
-const deleteAnalysis = async(req , res) => {
-  try { 
-    const deleteId = req.params.id ;
+const deleteAnalysis = async (req, res) => {
+  try {
+    const deleteId = req.params.id;
+    const userId = req.userInfo.userId;
 
     const deletedAnalysis = await AnalysisModel.findByIdAndDelete(deleteId);
 
-    if( !deletedAnalysis){
+    if (!deletedAnalysis) {
       return res.status(400).json({
-        success : false ,
-        message : "Analysis not found or already deleted"
+        success: false,
+        message: "Analysis not found or already deleted"
       })
     }
 
     return res.status(200).json({
-      success : true ,  
-      message : "Analysis deleted successfully" ,
-      data : deletedAnalysis
+      success: true,
+      message: "Analysis deleted successfully",
+      data: deletedAnalysis
     })
 
   }
-  catch(error){
+  catch (error) {
     console.log("Error deleting analysis:", error);
-    return res.status(500).json({ 
-      success: false, 
+    return res.status(500).json({
+      success: false,
       message: "An error occurred while deleting the analysis.",
       error: error.message
     })
@@ -116,4 +121,4 @@ const deleteAnalysis = async(req , res) => {
 
 
 
-export { analyzeResume , fetchallAnalysis , deleteAnalysis }
+export { analyzeResume, fetchallAnalysis, deleteAnalysis }

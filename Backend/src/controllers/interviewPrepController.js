@@ -4,6 +4,7 @@ import InterviewPrepModel from '../models/interviewPrep.js'
 const generateInterviewPrepController = async (req, res) => {
   try {
     const { role, experience, seniority } = req.body;
+    const userId = req.userInfo.userId;
 
     if (!role || !experience || !seniority) {
       return res.status(400).json({
@@ -22,6 +23,7 @@ const generateInterviewPrepController = async (req, res) => {
     }
 
     const saveInterviewPrep = await InterviewPrepModel.create({
+      user: userId,
       role: role,
       experience_level: experience,
       seniority: seniority,
@@ -48,8 +50,8 @@ const generateInterviewPrepController = async (req, res) => {
 
 const fetchAllInterviews = async (req, res) => {
   try {
-    const fetchAll = await InterviewPrepModel.find();
-    const count = await InterviewPrepModel.countDocuments();
+    const userId = req.userInfo.userId;
+    const fetchAll = await await InterviewPrepModel.find({ user: userId })
 
     if (fetchAll.length === 0) {
       return res.status(400).json({
@@ -61,7 +63,6 @@ const fetchAllInterviews = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "All interview preparation data fetched successfully",
-      count: count,
       data: fetchAll
     })
   }
@@ -103,4 +104,4 @@ const deleteInterviewPrep = async (req, res) => {
   }
 }
 
-export { generateInterviewPrepController, fetchAllInterviews  , deleteInterviewPrep}
+export { generateInterviewPrepController, fetchAllInterviews, deleteInterviewPrep }
