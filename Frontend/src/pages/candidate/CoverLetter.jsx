@@ -1,109 +1,187 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { FileText, Copy, Download, Sparkles } from 'lucide-react';
-import { DashboardLayout } from '../../layouts/DashboardLayout';
-import { Card } from '../../components/Card';
-import { Button } from '../../components/Button';
-import { Input } from '../../components/Input';
-import { Textarea } from '../../components/Textarea';
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { FileText, Copy, Download, Sparkles, Trash2, Eye, X } from "lucide-react";
+
+import { DashboardLayout } from "../../layouts/DashboardLayout";
+import { Card } from "../../components/Card";
+import { Button } from "../../components/Button";
+import { Input } from "../../components/Input";
+import { Textarea } from "../../components/Textarea";
+
+import { coverLetterService } from "../../services/coverLetterService";
 
 export const CoverLetter = () => {
-  const [jobRole, setJobRole] = useState('');
-  const [company, setCompany] = useState('');
-  const [jobDescription, setJobDescription] = useState('');
-  const [coverLetter, setCoverLetter] = useState('');
+
+  const [jobRole, setJobRole] = useState("");
+  const [company, setCompany] = useState("");
+  const [jobDescription, setJobDescription] = useState("");
+
+  const [coverLetter, setCoverLetter] = useState("");
+  const [letters, setLetters] = useState([]);
+
+  const [selectedLetter, setSelectedLetter] = useState(null);
+
+  const [deleteId, setDeleteId] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
   const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+    fetchLetters();
+  }, []);
+
+  const fetchLetters = async () => {
+
+    try {
+
+      const res = await coverLetterService.fetchAllLetters();
+
+      if (res.success) {
+        setLetters(res.data);
+      }
+
+    } catch (error) {
+      console.log("Fetch letters failed");
+    }
+
+  };
+
   const handleGenerate = async () => {
+
     setIsLoading(true);
 
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    try {
 
-    setCoverLetter(`Dear Hiring Manager,
+      const res = await coverLetterService.generateCoverLetter(
+        jobRole,
+        company,
+        jobDescription
+      );
 
-I am writing to express my strong interest in the ${jobRole} position at ${company}. With my extensive experience and passion for technology, I believe I would be an excellent fit for your team.
+      if (!res.success) throw new Error("Generation failed");
 
-Throughout my career, I have consistently demonstrated my ability to deliver high-quality results and contribute to team success. My technical skills, combined with my problem-solving abilities and dedication to continuous learning, make me well-suited for this role.
+      setCoverLetter(res.data.coverLetter);
 
-I am particularly drawn to ${company} because of your innovative approach and commitment to excellence. I am excited about the opportunity to contribute to your mission and grow alongside your talented team.
+      fetchLetters();
 
-The job description mentions several key requirements that align perfectly with my experience. I have successfully worked on similar projects and am confident in my ability to meet and exceed your expectations.
-
-Thank you for considering my application. I look forward to the opportunity to discuss how my skills and experience can contribute to ${company}'s continued success.
-
-Best regards,
-John Doe`);
+    } catch (error) {
+      console.log("Generation error", error);
+    }
 
     setIsLoading(false);
+
+  };
+
+  const handleViewLetter = async (id) => {
+
+    try {
+
+      const res = await coverLetterService.fetchLetterById(id);
+
+      if (res.data) {
+        setSelectedLetter(res.data);
+      }
+
+    } catch (error) {
+      console.log("Fetch letter failed");
+    }
+
+  };
+
+  const confirmDelete = (id) => {
+    setDeleteId(id);
+    setShowDeleteModal(true);
+  };
+
+  const handleDelete = async () => {
+
+    try {
+
+      const res = await coverLetterService.deleteLetter(deleteId);
+
+      if (res.success) {
+        fetchLetters();
+      }
+
+    } catch (error) {
+      console.log("Delete failed");
+    }
+
+    setShowDeleteModal(false);
+
   };
 
   const handleCopy = () => {
     navigator.clipboard.writeText(coverLetter);
-    alert('Cover letter copied to clipboard!');
   };
 
   const handleDownload = () => {
-    const element = document.createElement('a');
-    const file = new Blob([coverLetter], { type: 'text/plain' });
+
+    const element = document.createElement("a");
+
+    const file = new Blob([coverLetter], { type: "text/plain" });
 
     element.href = URL.createObjectURL(file);
     element.download = `cover-letter-${company}.txt`;
 
     document.body.appendChild(element);
+
     element.click();
+
     document.body.removeChild(element);
+
   };
 
   return (
     <DashboardLayout role="candidate">
-      <div className="max-w-4xl mx-auto">
+
+      <div className="max-w-6xl mx-auto">
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
+
+          <h1 className="text-3xl font-bold mb-2">
             Cover Letter Generator
           </h1>
 
-          <p className="text-slate-600 dark:text-slate-400">
-            Create personalized cover letters powered by AI
+          <p className="text-slate-500">
+            Create personalized AI cover letters
           </p>
+
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
-                <FileText className="w-5 h-5 text-blue-600" />
-              </div>
+        <div className="grid lg:grid-cols-2 gap-6">
 
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                Job Details
-              </h2>
-            </div>
+          {/* LEFT FORM */}
+
+          <Card>
+
+            <h2 className="text-xl font-bold mb-6">
+              Job Details
+            </h2>
 
             <div className="space-y-4">
+
               <Input
                 label="Job Role"
-                placeholder="e.g., Senior Frontend Developer"
                 value={jobRole}
-                onChange={(e) => setJobRole(e.target.value)}
+                onChange={(e)=>setJobRole(e.target.value)}
               />
 
               <Input
-                label="Company Name"
-                placeholder="e.g., TechCorp Inc."
+                label="Company"
                 value={company}
-                onChange={(e) => setCompany(e.target.value)}
+                onChange={(e)=>setCompany(e.target.value)}
               />
 
               <Textarea
                 label="Job Description"
-                placeholder="Paste the job description here..."
                 rows={8}
                 value={jobDescription}
-                onChange={(e) => setJobDescription(e.target.value)}
+                onChange={(e)=>setJobDescription(e.target.value)}
               />
 
               <Button
@@ -112,69 +190,189 @@ John Doe`);
                 disabled={!jobRole || !company || !jobDescription}
                 className="w-full"
               >
-                <Sparkles className="w-5 h-5" />
+                <Sparkles size={18}/>
                 Generate Cover Letter
               </Button>
+
             </div>
+
           </Card>
 
-          <Card>
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-green-100 dark:bg-green-900/20 rounded-lg flex items-center justify-center">
-                  <FileText className="w-5 h-5 text-green-600" />
-                </div>
+          {/* GENERATED LETTER */}
 
-                <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                  Generated Letter
-                </h2>
-              </div>
+          <Card>
+
+            <div className="flex justify-between mb-6">
+
+              <h2 className="text-xl font-bold">
+                Generated Letter
+              </h2>
 
               {coverLetter && (
+
                 <div className="flex gap-2">
+
                   <button
                     onClick={handleCopy}
-                    className="w-9 h-9 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:hover:bg-blue-800 rounded-lg flex items-center justify-center transition-colors"
-                    title="Copy to clipboard"
+                    className="p-2 bg-blue-100 rounded-lg"
                   >
-                    <Copy className="w-4 h-4 text-blue-600" />
+                    <Copy size={16}/>
                   </button>
 
                   <button
                     onClick={handleDownload}
-                    className="w-9 h-9 bg-green-100 hover:bg-green-200 dark:bg-green-900 dark:hover:bg-green-800 rounded-lg flex items-center justify-center transition-colors"
-                    title="Download as PDF"
+                    className="p-2 bg-green-100 rounded-lg"
                   >
-                    <Download className="w-4 h-4 text-green-600" />
+                    <Download size={16}/>
                   </button>
+
                 </div>
+
               )}
+
             </div>
 
             {coverLetter ? (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="bg-slate-50 dark:bg-slate-900 rounded-xl p-6 min-h-[500px]"
-              >
-                <pre className="whitespace-pre-wrap font-sans text-sm text-slate-900 dark:text-white leading-relaxed">
-                  {coverLetter}
-                </pre>
-              </motion.div>
-            ) : (
-              <div className="bg-slate-50 dark:bg-slate-900 rounded-xl p-12 min-h-[500px] flex items-center justify-center">
-                <div className="text-center">
-                  <FileText className="w-16 h-16 text-slate-300 dark:text-slate-700 mx-auto mb-4" />
 
-                  <p className="text-slate-500 dark:text-slate-400">
-                    Your cover letter will appear here
-                  </p>
-                </div>
+              <pre className="whitespace-pre-wrap text-sm leading-relaxed">
+                {coverLetter}
+              </pre>
+
+            ) : (
+
+              <div className="h-[400px] flex items-center justify-center text-gray-400">
+                Generated letter appears here
               </div>
+
             )}
+
           </Card>
+
         </div>
+
+        {/* PAST LETTERS */}
+
+        <div className="mt-10">
+
+          <h2 className="text-xl font-bold mb-4">
+            Past Cover Letters
+          </h2>
+
+          <div className="space-y-3">
+
+            {letters.map((letter)=>(
+              <Card key={letter._id}>
+
+                <div className="flex justify-between items-center">
+
+                  <div>
+
+                    <p className="font-semibold">
+                      {letter.jobRole}
+                    </p>
+
+                    <p className="text-sm text-gray-500">
+                      {letter.companyName}
+                    </p>
+
+                  </div>
+
+                  <div className="flex gap-3">
+
+                    <Button onClick={()=>handleViewLetter(letter._id)}>
+                      <Eye size={16}/>
+                    </Button>
+
+                    <Button
+                      variant="danger"
+                      onClick={()=>confirmDelete(letter._id)}
+                    >
+                      <Trash2 size={16}/>
+                    </Button>
+
+                  </div>
+
+                </div>
+
+              </Card>
+            ))}
+
+          </div>
+
+        </div>
+
       </div>
+
+      {/* VIEW MODAL */}
+
+      {selectedLetter && (
+
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-md"
+            onClick={()=>setSelectedLetter(null)}
+          />
+
+          <motion.div
+            initial={{scale:0.9,opacity:0}}
+            animate={{scale:1,opacity:1}}
+            className="relative w-[90%] max-w-3xl bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 text-white"
+          >
+
+            <div className="flex justify-between mb-6">
+
+              <h2 className="text-xl font-bold">
+                Cover Letter
+              </h2>
+
+              <button onClick={()=>setSelectedLetter(null)}>
+                <X/>
+              </button>
+
+            </div>
+
+            <pre className="whitespace-pre-wrap text-sm">
+              {selectedLetter.coverLetter}
+            </pre>
+
+          </motion.div>
+
+        </div>
+
+      )}
+
+      {/* DELETE MODAL */}
+
+      {showDeleteModal && (
+
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+
+          <div className="bg-white p-6 rounded-xl">
+
+            <p className="mb-4">
+              Delete this cover letter?
+            </p>
+
+            <div className="flex gap-3">
+
+              <Button variant="danger" onClick={handleDelete}>
+                Delete
+              </Button>
+
+              <Button onClick={()=>setShowDeleteModal(false)}>
+                Cancel
+              </Button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      )}
+
     </DashboardLayout>
   );
+
 };
