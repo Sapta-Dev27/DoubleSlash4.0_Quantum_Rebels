@@ -13,7 +13,7 @@ const generateAccestoken=(user)=>{
             userId:user._id,
             userEmailFromAccessToken:user.userEmail,
             userNameFromAccessToken:user.userName,
-            useRoleFromAccessToken:user.useRole
+            userRoleFromAccessToken:user.userRole
             
         }
         const accessToken=jwt.sign(payload,generate_access_token_secret_key,{expiresIn:jwt_access_token_expires_in});
@@ -24,7 +24,7 @@ const generateRefreshToken=(user)=>{
             userId:user._id,
             userEmailFromRefreshToken:user.userEmail,
             userNameFromRefreshToken:user.userName,
-            useRoleFromRefreshToken:user.useRole
+            userRoleFromRefreshToken:user.userRole
     }
     const RefreshToken=jwt.sign(payload,generate_refresh_token_secret_key,{expiresIn:jwt_refresh_token_expires_in});
     return RefreshToken;
@@ -104,8 +104,8 @@ const RegisterUser=async (req,res)=>{
 
 const LoginUser=async(req,res)=>{
     try{
-        const {useremail,userpassword}=req.body;
-        if(!useremail || !userpassword)
+        const {useremail,userpassword }=req.body;
+        if(!useremail || !userpassword )
         {
             return res.status(401).json(
                 {

@@ -10,6 +10,8 @@ import letterRoutes from "./routes/letterRoutes.js";
 import jobMatchRoute from "./routes/jobMatchRoute.js";
 import jobRoutes from "./routes/jobRoutes.js";
 import ApplicationRoutes from "./routes/applicationRoutes.js";
+import CandidateRoutes from "./routes/candidateRoutes.js";
+import RecruiterRoutes from "./routes/recruiterRoutes.js";
 
 
 const PORT = process.env.PORT || 8001;
@@ -32,6 +34,8 @@ app.use('/api/coverLetter', letterRoutes);
 app.use('/api/jobMatch', jobMatchRoute);
 app.use('/api/job', jobRoutes);
 app.use('/api/application', ApplicationRoutes);
+app.use('/api/candidate',CandidateRoutes);
+app.use('/api/recruiter',RecruiterRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
