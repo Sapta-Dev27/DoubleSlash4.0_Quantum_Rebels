@@ -128,4 +128,30 @@ const deleteInterview = async(req , res) => {
 }
 
 
-export { conductMockInterview, fetchAllInterviews , deleteInterview };
+const fetchInterviewById = async (req, res) => {
+  try {
+    const interviewId = req.params.id;
+    const interview = await InterviewModel.findById(interviewId);
+    if (!interview) { 
+      return res.status(404).json({
+        success: false,
+        message: "Interview not found with the provided ID"
+      })
+    }
+    return res.status(200).json({
+      success: true,
+      message: "Interview fetched successfully",
+      data: interview
+    })  
+  }
+  catch (error) {
+    console.log("Error in fetchInterviewById:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch interview",
+      error: error.message
+    })
+  }
+}
+
+export { conductMockInterview, fetchAllInterviews , deleteInterview , fetchInterviewById };

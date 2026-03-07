@@ -1,188 +1,445 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, Sparkles, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Upload,
+  Sparkles,
+  ChevronDown,
+  ChevronUp,
+  Trash2,
+  Eye,
+  X
+} from "lucide-react";
+
 import { DashboardLayout } from "../../layouts/DashboardLayout";
 import { Card } from "../../components/Card";
 import { Button } from "../../components/Button";
 import { FileUpload } from "../../components/FileUpload";
-import { mockInterviewQuestions } from "../../services/mockData";
+import { interviewService } from "../../services/interviewService";
 
 export const MockInterview = () => {
+
   const [file, setFile] = useState(null);
   const [isGenerated, setIsGenerated] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [expandedSection, setExpandedSection] = useState(null);
 
-  const handleGenerate = async () => {
-    setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setIsGenerated(true);
-    setIsLoading(false);
-  };
+  const [rounds, setRounds] = useState({});
+  const [interviews, setInterviews] = useState([]);
+
+  const [selectedInterview, setSelectedInterview] = useState(null);
+
+  const [deleteId, setDeleteId] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const [notification, setNotification] = useState("");
 
   const sections = [
-    { id: "technical", title: "Technical Round", color: "blue" },
-    { id: "experience", title: "Experience Round", color: "green" },
-    { id: "hr", title: "HR Round", color: "orange" },
+    { id: "technical", title: "Technical Round" },
+    { id: "project", title: "Project Round" },
+    { id: "experience", title: "Experience Round" },
+    { id: "hr", title: "HR Round" }
   ];
 
-  const getQuestionsByCategory = (category) => {
-    return mockInterviewQuestions.filter((q) => q.category === category);
+  useEffect(() => {
+    fetchAllInterviews();
+  }, []);
+
+  const fetchAllInterviews = async () => {
+    try {
+
+      const res = await interviewService.fetchInterviews();
+
+      if (res.success) {
+        setInterviews(res.data);
+      }
+
+    } catch (error) {
+      console.log("Failed to fetch interviews");
+    }
+  };
+
+  const handleGenerate = async () => {
+
+    if (!file) return;
+
+    setIsLoading(true);
+
+    try {
+
+      const response = await interviewService.generateInterview(file);
+
+      if (!response.success) {
+        throw new Error(response.message);
+      }
+
+      setRounds(response.data.rounds || {});
+      setIsGenerated(true);
+
+      fetchAllInterviews();
+
+    } catch (error) {
+      console.error("Interview generation failed:", error);
+    } finally {
+      setIsLoading(false);
+    }
+
+  };
+
+  const handleReviseInterview = async (id) => {
+
+    try {
+
+      const response = await interviewService.fetchInterviewById(id);
+
+      if (response.success) {
+        setSelectedInterview(response.data);
+      }
+
+    } catch (error) {
+      console.log("Fetch interview failed");
+    }
+
+  };
+
+  const confirmDelete = (id) => {
+    setDeleteId(id);
+    setShowDeleteModal(true);
+  };
+
+  const handleDelete = async () => {
+
+    try {
+
+      const res = await interviewService.deleteInterview(deleteId);
+
+      if (res.success) {
+
+        setNotification("Interview deleted successfully");
+
+        fetchAllInterviews();
+
+        setTimeout(() => {
+          setNotification("");
+        }, 3000);
+
+      }
+
+    } catch (error) {
+      console.log("Delete failed");
+    }
+
+    setShowDeleteModal(false);
+
+  };
+
+  const getQuestionsByCategory = (category, data) => {
+    return data?.[category] || [];
   };
 
   return (
+
     <DashboardLayout role="candidate">
-      <div className="max-w-4xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
-            AI Mock Interview
-          </h1>
 
-          <p className="text-slate-600 dark:text-slate-400">
-            Upload your resume and get personalized interview questions
-          </p>
-        </motion.div>
+      <div className="max-w-4xl mx-auto space-y-6">
 
-        <div className="space-y-6">
-          <Card>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">
-              Upload Resume
-            </h2>
+        {/* Notification */}
 
-            <FileUpload onFileSelect={setFile} accept=".pdf,.doc,.docx" maxSize={5} />
+        {notification && (
+          <div className="bg-green-100 text-green-700 px-4 py-3 rounded-lg">
+            {notification}
+          </div>
+        )}
 
-            {file && !isGenerated && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mt-6"
+        {/* Upload Resume */}
+
+        <Card>
+
+          <h2 className="text-xl font-bold mb-4">
+            Upload Resume
+          </h2>
+
+          <FileUpload
+            onFileSelect={setFile}
+            accept=".pdf,.doc,.docx"
+            maxSize={5}
+          />
+
+          {file && !isGenerated && (
+
+            <div className="mt-6">
+
+              <Button
+                onClick={handleGenerate}
+                isLoading={isLoading}
+                className="w-full"
               >
-                <Button
-                  onClick={handleGenerate}
-                  isLoading={isLoading}
-                  className="w-full"
-                >
-                  <Sparkles className="w-5 h-5" />
-                  Generate Interview Questions
-                </Button>
-              </motion.div>
-            )}
-          </Card>
+                <Sparkles className="w-5 h-5" />
+                Generate Interview Questions
+              </Button>
 
-          {isGenerated && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="space-y-4"
-            >
-              {/* Resume Summary */}
+            </div>
 
-              <Card className="bg-gradient-to-r from-blue-50 to-green-50 dark:from-blue-950 dark:to-green-950">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-white dark:bg-slate-800 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Upload className="w-6 h-6 text-blue-600" />
-                  </div>
+          )}
 
-                  <div>
-                    <h3 className="font-bold text-slate-900 dark:text-white mb-2">
-                      Resume Summary
+        </Card>
+
+        {/* Generated Interview */}
+
+        {isGenerated && (
+
+          <div className="space-y-4">
+
+            {sections.map((section) => {
+
+              const questions = getQuestionsByCategory(section.id, rounds);
+              const isExpanded = expandedSection === section.id;
+
+              return (
+
+                <Card key={section.id}>
+
+                  <button
+                    onClick={() =>
+                      setExpandedSection(isExpanded ? null : section.id)
+                    }
+                    className="w-full flex justify-between items-center"
+                  >
+
+                    <h3 className="font-bold">
+                      {section.title}
                     </h3>
 
-                    <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">
-                      <span className="font-medium">Name:</span> John Doe
-                    </p>
+                    {isExpanded ? <ChevronUp /> : <ChevronDown />}
 
-                    <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">
-                      <span className="font-medium">Experience:</span> 5 years in
-                      Frontend Development
-                    </p>
+                  </button>
 
-                    <p className="text-sm text-slate-600 dark:text-slate-400">
-                      <span className="font-medium">Skills:</span> React,
-                      TypeScript, Node.js, AWS
-                    </p>
-                  </div>
-                </div>
-              </Card>
+                  <AnimatePresence>
 
-              {sections.map((section, index) => {
-                const questions = getQuestionsByCategory(section.id);
-                const isExpanded = expandedSection === section.id;
+                    {isExpanded && (
 
-                return (
-                  <motion.div
-                    key={section.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                  >
-                    <Card>
-                      <button
-                        onClick={() =>
-                          setExpandedSection(isExpanded ? null : section.id)
-                        }
-                        className="w-full flex items-center justify-between"
+                      <motion.div
+                        initial={{ height: 0 }}
+                        animate={{ height: "auto" }}
+                        exit={{ height: 0 }}
+                        className="mt-4 space-y-3 overflow-hidden"
                       >
-                        <div className="flex items-center gap-3">
+
+                        {questions.map((q, i) => (
+
                           <div
-                            className={`w-10 h-10 bg-${section.color}-100 dark:bg-${section.color}-900/20 rounded-lg flex items-center justify-center`}
+                            key={q._id || i}
+                            className="p-4 rounded-lg bg-slate-100 dark:bg-slate-800"
                           >
-                            <span
-                              className={`text-${section.color}-600 font-bold`}
-                            >
-                              {index + 1}
-                            </span>
+
+                            <p>
+                              Q{i + 1}: {q.question}
+                            </p>
+
                           </div>
 
-                          <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                            {section.title}
-                          </h3>
+                        ))}
 
-                          <span className="text-sm text-slate-500">
-                            ({questions.length} questions)
-                          </span>
+                      </motion.div>
+
+                    )}
+
+                  </AnimatePresence>
+
+                </Card>
+
+              );
+
+            })}
+
+          </div>
+
+        )}
+
+        {/* Past Interviews */}
+
+        <div>
+
+          <h2 className="text-xl font-bold mb-4">
+            Revise Past Interviews
+          </h2>
+
+          <div className="space-y-3">
+
+            {interviews.map((interview) => (
+
+              <Card key={interview._id}>
+
+                <div className="flex justify-between items-center">
+
+                  <div>
+
+                    <p className="font-semibold">
+                      Interview ID: {interview._id}
+                    </p>
+
+                    <p className="text-sm text-gray-500">
+                      Status: {interview.status}
+                    </p>
+
+                  </div>
+
+                  <div className="flex gap-3">
+
+                    <Button
+                      onClick={() => handleReviseInterview(interview._id)}
+                    >
+                      <Eye size={16} />
+                    </Button>
+
+                    <Button
+                      variant="danger"
+                      onClick={() => confirmDelete(interview._id)}
+                    >
+                      <Trash2 size={16} />
+                    </Button>
+
+                  </div>
+
+                </div>
+
+              </Card>
+
+            ))}
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      {/* Revise Interview Popup */}
+
+      {selectedInterview && (
+
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-[90%] max-w-3xl max-h-[80vh] overflow-hidden"
+          >
+
+            {/* Header */}
+
+            <div className="flex justify-between items-center px-6 py-4 border-b">
+
+              <h2 className="text-xl font-bold">
+                Revise Interview
+              </h2>
+
+              <button
+                onClick={() => setSelectedInterview(null)}
+                className="p-2 hover:bg-slate-100 rounded-lg"
+              >
+                <X size={20} />
+              </button>
+
+            </div>
+
+            {/* Questions */}
+
+            <div className="p-6 overflow-y-auto max-h-[65vh] space-y-6">
+
+              {sections.map((section) => {
+
+                const questions =
+                  selectedInterview.rounds?.[section.id] || [];
+
+                return (
+
+                  <div key={section.id}>
+
+                    <h3 className="font-semibold text-lg mb-3 text-blue-600">
+                      {section.title}
+                    </h3>
+
+                    <div className="space-y-3">
+
+                      {questions.map((q, i) => (
+
+                        <div
+                          key={i}
+                          className="p-4 rounded-lg border bg-slate-50 dark:bg-slate-800"
+                        >
+
+                          <p className="font-medium">
+                            Q{i + 1}: {q.question}
+                          </p>
+
+                          {q.answer && (
+
+                            <p className="text-sm text-slate-600 mt-2">
+                              <span className="font-semibold">
+                                Answer:
+                              </span>{" "}
+                              {q.answer}
+                            </p>
+
+                          )}
+
                         </div>
 
-                        {isExpanded ? (
-                          <ChevronUp className="w-5 h-5 text-slate-600" />
-                        ) : (
-                          <ChevronDown className="w-5 h-5 text-slate-600" />
-                        )}
-                      </button>
+                      ))}
 
-                      <AnimatePresence>
-                        {isExpanded && (
-                          <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            className="mt-4 space-y-3 overflow-hidden"
-                          >
-                            {questions.map((question, qIndex) => (
-                              <div
-                                key={question.id}
-                                className="p-4 bg-slate-50 dark:bg-slate-900 rounded-lg"
-                              >
-                                <p className="text-sm font-medium text-slate-900 dark:text-white">
-                                  Q{qIndex + 1}: {question.question}
-                                </p>
-                              </div>
-                            ))}
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </Card>
-                  </motion.div>
+                    </div>
+
+                  </div>
+
                 );
+
               })}
-            </motion.div>
-          )}
+
+            </div>
+
+          </motion.div>
+
         </div>
-      </div>
+
+      )}
+
+      {/* Delete Confirmation */}
+
+      {showDeleteModal && (
+
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-lg">
+
+            <h3 className="font-semibold mb-4">
+              Are you sure you want to delete this interview?
+            </h3>
+
+            <div className="flex gap-4">
+
+              <Button
+                variant="danger"
+                onClick={handleDelete}
+              >
+                Yes Delete
+              </Button>
+
+              <Button
+                onClick={() => setShowDeleteModal(false)}
+              >
+                Cancel
+              </Button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      )}
+
     </DashboardLayout>
+
   );
+
 };

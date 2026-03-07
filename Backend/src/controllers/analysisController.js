@@ -120,5 +120,37 @@ const deleteAnalysis = async (req, res) => {
 }
 
 
+const fetchAnalysisById = async (req, res) => {
+  try {
+    const analysisId = req.params.id;
+    const userId = req.userInfo.userId;
 
-export { analyzeResume, fetchallAnalysis, deleteAnalysis }
+    const analysis = await AnalysisModel.findOne({
+      _id: analysisId,
+      user: userId
+    });
+
+    if (!analysis) {
+      return res.status(404).json({
+        success: false,
+        message: "Analysis not found"
+      })
+    }
+    return res.status(200).json({
+      success: true,
+      message: "Analysis fetched successfully",
+      data: analysis
+    })
+  }
+  catch (error) {
+    console.log("Error fetching analysis by ID:", error);
+    return res.status(500).json({
+      success: false,
+      message: "An error occurred while fetching the analysis.",
+      error: error.message
+    })
+  }
+}
+
+
+export { analyzeResume, fetchallAnalysis, deleteAnalysis, fetchAnalysisById }
