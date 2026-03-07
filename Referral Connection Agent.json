@@ -1,0 +1,318 @@
+{
+  "name": "Referral Connection Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "Run actor and get dataset",
+        "actorSource": "store",
+        "actorId": {
+          "__rl": true,
+          "value": "Vb6LZkh4EqRlR0Ka9",
+          "mode": "list",
+          "cachedResultName": "LinkedIn Company Employees Scraper ✅ No Cookies 📧 (harvestapi/linkedin-company-employees)",
+          "cachedResultUrl": "https://console.apify.com/actors/Vb6LZkh4EqRlR0Ka9/input"
+        },
+        "customBody": "={\n    \"companies\": [\n        \"{{ $json['Comapny Linkedin Page url'] }}\"\n    ],\n    \"jobTitles\": [\n        \"{{ $json['Job Title'] }}\"\n    ],\n    \"locations\": [\n        \"{{ $json.Location }}\"\n    ],\n    \"maxItems\": 1,\n    \"maxItemsPerCompany\": 1,\n    \"profileScraperMode\": \"Full + email search ($12 per 1k)\",\n    \"recentlyChangedJobs\": false,\n    \"yearsAtCurrentCompanyIds\": [\n        \"2\"\n    ]\n}"
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        240,
+        -160
+      ],
+      "id": "b62f1bb0-8ef3-403f-9007-f6fed69018da",
+      "name": "Run an Actor and get dataset",
+      "credentials": {
+        "apifyApi": {
+          "id": "qKFuKL5kcA5EqHzy",
+          "name": "Apify account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "formTitle": "Find  Connections....",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Comapny Linkedin Page url"
+            },
+            {
+              "fieldLabel": "Job Title"
+            },
+            {
+              "fieldLabel": "Location"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        16,
+        -160
+      ],
+      "id": "2c0330db-6316-4b48-997b-79a71c406669",
+      "name": "On form submission",
+      "webhookId": "f483c489-e98a-46d7-a55e-416483bb6bdc"
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "collection": "referrals",
+        "fields": "LinkedIn URL,Full Name,Headline,Email,Current Company,Current Role",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        912,
+        -160
+      ],
+      "id": "6462fd54-d3eb-4af9-95e0-b4c6643ce476",
+      "name": "Insert documents",
+      "credentials": {
+        "mongoDb": {
+          "id": "QShUotkze7H00OW2",
+          "name": "MongoDB account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "Run actor and get dataset",
+        "actorSource": "store",
+        "actorId": {
+          "__rl": true,
+          "value": "VhxlqQXRwhW8H5hNV",
+          "mode": "list",
+          "cachedResultName": "Profile Details Scraper for LinkedIn + EMAIL (No Cookies) (apimaestro/linkedin-profile-detail)",
+          "cachedResultUrl": "https://console.apify.com/actors/VhxlqQXRwhW8H5hNV/input"
+        },
+        "customBody": "={\n  \"includeEmail\": true,\n  \"username\": \"{{$json.linkedinUrl}}\"\n}"
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        464,
+        -160
+      ],
+      "id": "dfe3713b-8f3e-4794-ba3c-ff8dd93edfd7",
+      "name": "Run an Actor and get dataset1",
+      "credentials": {
+        "apifyApi": {
+          "id": "qKFuKL5kcA5EqHzy",
+          "name": "Apify account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1nGQfPJ7tkPfiCcXDbKRtRtKGdd1-HCmhVdPsGLQStL0",
+          "mode": "list",
+          "cachedResultName": "Contavt for Referal",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1nGQfPJ7tkPfiCcXDbKRtRtKGdd1-HCmhVdPsGLQStL0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1nGQfPJ7tkPfiCcXDbKRtRtKGdd1-HCmhVdPsGLQStL0/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "LinkedIn URL": "={{ $json.basic_info.profile_url }}",
+            "Full Name": "={{ $json.basic_info.fullname }}",
+            "Headline": "={{ $json.basic_info.headline }}",
+            "Email": "={{ $json.basic_info.email }}",
+            "Current Company": "={{ $json.experience[0].company }}",
+            "Current Role": "={{ $json.experience[0].title }}"
+          },
+          "matchingColumns": [
+            "LinkedIn URL"
+          ],
+          "schema": [
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Headline",
+              "displayName": "Headline",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "LinkedIn URL",
+              "displayName": "LinkedIn URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "City",
+              "displayName": "City",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Current Company",
+              "displayName": "Current Company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Current Role",
+              "displayName": "Current Role",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Top Skills",
+              "displayName": "Top Skills",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Followers",
+              "displayName": "Followers",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Connections",
+              "displayName": "Connections",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        688,
+        -160
+      ],
+      "id": "c764aa0c-1c20-4dc5-9a68-c024eface77d",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "v11Fg29jgTDB5ezo",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Run an Actor and get dataset",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run an Actor and get dataset": {
+      "main": [
+        [
+          {
+            "node": "Run an Actor and get dataset1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run an Actor and get dataset1": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Insert documents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "11aa2bf6-5d77-4df3-8b7a-65074206d731",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e84c4ce1928e43144c8cd5969c8f915e1dfbcbf1c17427d2510b84fc6703eb39"
+  },
+  "id": "xyJUhfWjhr1c623l",
+  "tags": []
+}
