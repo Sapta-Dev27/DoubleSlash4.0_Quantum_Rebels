@@ -1,136 +1,278 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Briefcase, Edit, Trash2, Users, Calendar } from 'lucide-react';
-import { DashboardLayout } from '../../layouts/DashboardLayout';
-import { Card } from '../../components/Card';
-import { Button } from '../../components/Button';
-import { mockJobs } from '../../services/mockData';
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { Briefcase, Trash2, Edit, Eye, X } from "lucide-react";
+
+import { DashboardLayout } from "../../layouts/DashboardLayout";
+import { Card } from "../../components/Card";
+import { Button } from "../../components/Button";
+import { Input } from "../../components/Input";
+import { Textarea } from "../../components/Textarea";
+
+import { recruiterService } from "../../services/recruiterService";
 
 export const ManageJobs = () => {
-  const [jobs] = useState(mockJobs);
 
-  const handleEdit = (jobId) => {
-    alert(`Edit job ${jobId}`);
-  };
+  const [jobs,setJobs] = useState([]);
+  const [selectedJob,setSelectedJob] = useState(null);
+  const [editJob,setEditJob] = useState(null);
 
-  const handleDelete = (jobId) => {
-    if (confirm('Are you sure you want to delete this job posting?')) {
-      alert(`Job ${jobId} deleted`);
+  useEffect(()=>{
+    loadJobs();
+  },[]);
+
+  const loadJobs = async () => {
+
+    try {
+
+      const res = await recruiterService.fetchJobs();
+
+      if(res.success){
+        setJobs(res.data);
+      }
+
+    } catch(err){
+      console.log(err);
     }
+
   };
 
-  return (
+  const handleDelete = async (id) => {
+
+    if(!confirm("Are you sure you want to delete this job?")) return;
+
+    try{
+
+      const res = await recruiterService.deleteJob(id);
+
+      if(res.success){
+        setJobs(prev => prev.filter(j => j._id !== id));
+      }
+
+    }catch(err){
+      console.log(err);
+    }
+
+  };
+
+  const handleView = async (id) => {
+
+    try{
+
+      const res = await recruiterService.fetchJobById(id);
+
+      if(res.success){
+        setSelectedJob(res.data);
+      }
+
+    }catch(err){
+      console.log(err);
+    }
+
+  };
+
+  const handleUpdate = async () => {
+
+    try{
+
+      const res = await recruiterService.updateJob(editJob._id,editJob);
+
+      if(res.success){
+
+        setJobs(prev =>
+          prev.map(j =>
+            j._id === editJob._id ? res.data : j
+          )
+        );
+
+        setEditJob(null);
+
+      }
+
+    }catch(err){
+      console.log(err);
+    }
+
+  };
+
+  return(
+
     <DashboardLayout role="recruiter">
+
       <div className="max-w-6xl mx-auto">
+
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{opacity:0,y:20}}
+          animate={{opacity:1,y:0}}
           className="mb-8"
         >
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
+
+          <h1 className="text-3xl font-bold text-white mb-2">
             Manage Jobs
           </h1>
-          <p className="text-slate-600 dark:text-slate-400">
-            View and manage your job postings
-          </p>
+
         </motion.div>
 
-        <div className="space-y-6">
-          {jobs.map((job, index) => (
-            <motion.div
-              key={job.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-            >
-              <Card hover>
-                <div className="flex items-start gap-4">
-                  <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Briefcase className="w-7 h-7 text-white" />
-                  </div>
+        <div className="space-y-4">
 
-                  <div className="flex-1">
-                    <div className="flex items-start justify-between mb-3">
-                      <div>
-                        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-1">
-                          {job.role}
-                        </h3>
-                        <p className="text-sm text-slate-600 dark:text-slate-400">
-                          {job.company}
-                        </p>
-                      </div>
+          {jobs.map(job => (
 
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleEdit(job.id)}
-                        >
-                          <Edit className="w-4 h-4" />
-                          Edit
-                        </Button>
+            <Card key={job._id}>
 
-                        <Button
-                          size="sm"
-                          variant="danger"
-                          onClick={() => handleDelete(job.id)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                          Delete
-                        </Button>
-                      </div>
-                    </div>
+              <div className="flex justify-between items-center">
 
-                    <p className="text-slate-600 dark:text-slate-400 mb-4 line-clamp-2">
-                      {job.description}
-                    </p>
+                <div>
 
-                    <div className="flex flex-wrap gap-4">
-                      <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                        <Users className="w-4 h-4" />
-                        <span>45 applicants</span>
-                      </div>
+                  <h3 className="text-lg font-bold text-white">
+                    {job.title}
+                  </h3>
 
-                      <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                        <Calendar className="w-4 h-4" />
-                        <span>Posted {new Date(job.createdAt).toLocaleDateString()}</span>
-                      </div>
+                  <p className="text-sm text-slate-400">
+                    {job.company} • {job.location}
+                  </p>
 
-                      <div className="px-3 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-full text-xs font-medium">
-                        {job.location}
-                      </div>
-
-                      <div className="px-3 py-1 bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-full text-xs font-medium">
-                        {job.experience}
-                      </div>
-
-                      <div className="px-3 py-1 bg-orange-100 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400 rounded-full text-xs font-medium">
-                        {job.salary}
-                      </div>
-                    </div>
-                  </div>
                 </div>
-              </Card>
-            </motion.div>
+
+                <div className="flex gap-2">
+
+                  <Button
+                    size="sm"
+                    onClick={()=>handleView(job._id)}
+                  >
+                    <Eye size={16}/>
+                    View
+                  </Button>
+
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={()=>setEditJob(job)}
+                  >
+                    <Edit size={16}/>
+                    Edit
+                  </Button>
+
+                  <Button
+                    size="sm"
+                    variant="danger"
+                    onClick={()=>handleDelete(job._id)}
+                  >
+                    <Trash2 size={16}/>
+                    Delete
+                  </Button>
+
+                </div>
+
+              </div>
+
+            </Card>
+
           ))}
+
         </div>
 
-        {jobs.length === 0 && (
-          <Card>
-            <div className="text-center py-12">
-              <Briefcase className="w-16 h-16 text-slate-300 dark:text-slate-700 mx-auto mb-4" />
-              <p className="text-slate-600 dark:text-slate-400 mb-4">
-                No job postings yet
-              </p>
-
-              <Button>
-                <Briefcase className="w-5 h-5" />
-                Post Your First Job
-              </Button>
-            </div>
-          </Card>
-        )}
       </div>
+
+      {/* VIEW DETAILS MODAL */}
+
+      {selectedJob && (
+
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-md z-50">
+
+          <div className="bg-slate-900 p-8 rounded-xl w-[600px] relative">
+
+            <button
+              onClick={()=>setSelectedJob(null)}
+              className="absolute top-4 right-4 text-white"
+            >
+              <X/>
+            </button>
+
+            <h2 className="text-xl font-bold text-white mb-4">
+              {selectedJob.title}
+            </h2>
+
+            <p className="text-slate-300 mb-2">
+              {selectedJob.company}
+            </p>
+
+            <p className="text-slate-400 mb-4">
+              {selectedJob.location}
+            </p>
+
+            <p className="text-slate-300">
+              {selectedJob.description}
+            </p>
+
+          </div>
+
+        </div>
+
+      )}
+
+      {/* EDIT MODAL */}
+
+      {editJob && (
+
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-md z-50">
+
+          <div className="bg-slate-900 p-8 rounded-xl w-[600px]">
+
+            <h2 className="text-xl font-bold text-white mb-6">
+              Edit Job
+            </h2>
+
+            <div className="space-y-4">
+
+              <Input
+                label="Title"
+                value={editJob.title}
+                onChange={(e)=>setEditJob({...editJob,title:e.target.value})}
+              />
+
+              <Input
+                label="Company"
+                value={editJob.company}
+                onChange={(e)=>setEditJob({...editJob,company:e.target.value})}
+              />
+
+              <Input
+                label="Location"
+                value={editJob.location}
+                onChange={(e)=>setEditJob({...editJob,location:e.target.value})}
+              />
+
+              <Textarea
+                label="Description"
+                rows={4}
+                value={editJob.description}
+                onChange={(e)=>setEditJob({...editJob,description:e.target.value})}
+              />
+
+            </div>
+
+            <div className="flex gap-3 mt-6">
+
+              <Button onClick={handleUpdate}>
+                Update
+              </Button>
+
+              <Button
+                variant="outline"
+                onClick={()=>setEditJob(null)}
+              >
+                Cancel
+              </Button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      )}
+
     </DashboardLayout>
+
   );
+
 };

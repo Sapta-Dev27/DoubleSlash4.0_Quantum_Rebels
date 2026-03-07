@@ -13,7 +13,7 @@ const createJob = async (req, res) => {
     }
 
     const newJob = await JobModel.create({
-      recruiter : userId,
+      recruiter: userId,
       title,
       company,
       location,
@@ -50,8 +50,36 @@ const createJob = async (req, res) => {
 const fetchAllJobs = async (req, res) => {
   try {
     const userId = req.userInfo.userId;
-    const findAllJobs = await JobModel.find( {
-      recruiter : userId
+    const findAllJobs = await JobModel.find({
+    })
+    if (findAllJobs.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No jobs found"
+      })
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Jobs fetched successfully",
+      data: findAllJobs
+    })
+  }
+  catch (error) {
+    console.log('Fetch All Jobs Error : ', error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch jobs"
+    })
+  }
+}
+
+
+const fetchAllJobsForRecruiter = async (req, res) => {
+  try {
+    const userId = req.userInfo.userId;
+    const findAllJobs = await JobModel.find({
+      recruiter: userId
     })
     if (findAllJobs.length === 0) {
       return res.status(404).json({
@@ -80,7 +108,7 @@ const fetchJobsById = async (req, res) => {
     const jobID = req.params.id;
     const userId = req.userInfo.userId;
     const fetchJobById = await JobModel.findById(jobID);
-    
+
     if (!fetchJobById) {
       return res.status(404).json({
         success: false,
@@ -144,29 +172,29 @@ const updateJob = async (req, res) => {
 }
 
 
-const deleteJob = async(req , res) => {
+const deleteJob = async (req, res) => {
   try {
     const jobId = req.params.id;
-    const deleteJob = await JobModel.findByIdAndDelete({_id : jobId});
-    if(!deleteJob){
+    const deleteJob = await JobModel.findByIdAndDelete({ _id: jobId });
+    if (!deleteJob) {
       return res.status(400).json({
-        success : false , 
-        message : "Failed to delete job"
+        success: false,
+        message: "Failed to delete job"
       })
     }
     return res.status(200).json({
-      success : true , 
-      message : "Job deleted successfully"
+      success: true,
+      message: "Job deleted successfully"
     })
   }
-  catch(error){
+  catch (error) {
     console.log('Error in deleting job : ', error);
     return res.status(500).json({
-      success : false , 
-      message : "Failed to delete job"
+      success: false,
+      message: "Failed to delete job"
     })
   }
 }
 
 
-export { createJob, fetchAllJobs, fetchJobsById, updateJob , deleteJob }
+export { createJob, fetchAllJobs, fetchJobsById, updateJob, deleteJob, fetchAllJobsForRecruiter }

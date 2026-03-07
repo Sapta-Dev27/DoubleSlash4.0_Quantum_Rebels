@@ -33,12 +33,13 @@ export const DashboardLayout = ({ children, role }) => {
     { label: 'Resume Analyzer', path: '/candidate/resume-analyzer', icon: <FileText className="w-5 h-5" /> },
     { label: 'Cover Letter', path: '/candidate/cover-letter', icon: <FileText className="w-5 h-5" /> },
     { label: 'Interview Prep', path: '/candidate/interview-prep', icon: <BookOpen className="w-5 h-5" /> },
+    {label : 'Job Match', path: '/candidate/job-match', icon: <FileText className="w-5 h-5" />},
     { label: 'Job Recommendations', path: '/candidate/jobs', icon: <Briefcase className="w-5 h-5" /> },
-    { label: 'Applied Jobs', path: '/candidate/applied-jobs', icon: <CheckSquare className="w-5 h-5" /> }
+    { label: 'Applied Jobs', path: '/candidate/applied-jobs', icon: <CheckSquare className="w-5 h-5" /> } ,
+
   ];
 
   const recruiterNavItems = [
-    { label: 'Dashboard', path: '/recruiter/dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
     { label: 'Post Job', path: '/recruiter/post-job', icon: <PlusCircle className="w-5 h-5" /> },
     { label: 'Manage Jobs', path: '/recruiter/manage-jobs', icon: <Briefcase className="w-5 h-5" /> },
     { label: 'Applicants', path: '/recruiter/applicants', icon: <Users className="w-5 h-5" /> }

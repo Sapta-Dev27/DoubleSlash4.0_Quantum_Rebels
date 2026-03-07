@@ -1,163 +1,173 @@
-import { motion } from 'framer-motion';
-import { Briefcase, Calendar, FileText } from 'lucide-react';
-import { DashboardLayout } from '../../layouts/DashboardLayout';
-import { Card } from '../../components/Card';
+import { useState,useEffect } from "react";
+import { motion } from "framer-motion";
+import { Calendar, MapPin, Building2 } from "lucide-react";
+
+import { DashboardLayout } from "../../layouts/DashboardLayout";
+import { Card } from "../../components/Card";
+
+import { applicationService } from "../../services/applicationService";
 
 export const AppliedJobs = () => {
-  const applications = [
-    {
-      id: '1',
-      company: 'TechCorp',
-      role: 'Senior Frontend Developer',
-      appliedDate: '2024-01-16',
-      status: 'shortlisted'
-    },
-    {
-      id: '2',
-      company: 'StartupXYZ',
-      role: 'Full Stack Engineer',
-      appliedDate: '2024-01-15',
-      status: 'pending'
-    },
-    {
-      id: '3',
-      company: 'InnovateLabs',
-      role: 'React Developer',
-      appliedDate: '2024-01-14',
-      status: 'rejected'
-    },
-    {
-      id: '4',
-      company: 'DataSystems',
-      role: 'Frontend Engineer',
-      appliedDate: '2024-01-13',
-      status: 'pending'
+
+  const [applications,setApplications] = useState([]);
+
+  useEffect(()=>{
+    loadApplications();
+  },[]);
+
+  const loadApplications = async () => {
+
+    try{
+
+      const res = await applicationService.fetchApplications();
+
+      if(res.success){
+        setApplications(res.data);
+      }
+
+    }catch(err){
+      console.log(err);
     }
-  ];
 
-  const getStatusBadge = (status) => {
-    const styles = {
-      pending: 'bg-orange-100 text-orange-700 dark:bg-orange-900/20 dark:text-orange-400',
-      shortlisted: 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400',
-      rejected: 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400'
-    };
-
-    return (
-      <span className={`px-3 py-1 rounded-full text-xs font-medium ${styles[status]}`}>
-        {status.charAt(0).toUpperCase() + status.slice(1)}
-      </span>
-    );
   };
 
-  return (
-    <DashboardLayout role="candidate">
-      <div className="max-w-6xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
-            Applied Jobs
-          </h1>
-          <p className="text-slate-600 dark:text-slate-400">
-            Track your job applications and their status
-          </p>
-        </motion.div>
+  const getStatusStyle = (status) => {
 
-        <Card>
+    const styles = {
+
+      pending:
+        "bg-orange-500/10 text-orange-400 border border-orange-500/30 backdrop-blur-md",
+
+      shortlisted:
+        "bg-green-500/10 text-green-400 border border-green-500/30 backdrop-blur-md",
+
+      rejected:
+        "bg-red-500/10 text-red-400 border border-red-500/30 backdrop-blur-md"
+
+    };
+
+    return styles[status] || "bg-slate-500/10 text-slate-300 border border-slate-600";
+  };
+
+  return(
+
+    <DashboardLayout role="candidate">
+
+      <div className="max-w-6xl mx-auto">
+
+        <h1 className="text-3xl font-bold text-white mb-6">
+          Applied Jobs
+        </h1>
+
+        <Card className="bg-white/5 backdrop-blur-xl border border-white/10">
+
           <div className="overflow-x-auto">
+
             <table className="w-full">
+
               <thead>
-                <tr className="border-b border-slate-200 dark:border-slate-700">
-                  <th className="text-left py-4 px-4 text-sm font-semibold text-slate-700 dark:text-slate-300">
-                    Company
-                  </th>
-                  <th className="text-left py-4 px-4 text-sm font-semibold text-slate-700 dark:text-slate-300">
-                    Role
-                  </th>
-                  <th className="text-left py-4 px-4 text-sm font-semibold text-slate-700 dark:text-slate-300">
-                    Applied Date
-                  </th>
-                  <th className="text-left py-4 px-4 text-sm font-semibold text-slate-700 dark:text-slate-300">
-                    Status
-                  </th>
-                  <th className="text-left py-4 px-4 text-sm font-semibold text-slate-700 dark:text-slate-300">
-                    Actions
-                  </th>
+
+                <tr className="border-b border-slate-700 text-slate-400 text-sm">
+
+                  <th className="py-4 text-left">Job</th>
+                  <th className="py-4 text-left">Company</th>
+                  <th className="py-4 text-left">Location</th>
+                  <th className="py-4 text-left">Status</th>
+
                 </tr>
+
               </thead>
+
               <tbody>
-                {applications.map((app, index) => (
+
+                {applications.map((app,index)=>(
+
                   <motion.tr
-                    key={app.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors"
+                    key={app._id}
+                    initial={{opacity:0,y:20}}
+                    animate={{opacity:1,y:0}}
+                    transition={{delay:index*0.1}}
+                    className="border-b border-slate-800 hover:bg-white/5 transition"
                   >
-                    <td className="py-4 px-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
-                          <Briefcase className="w-5 h-5 text-white" />
-                        </div>
-                        <span className="font-medium text-slate-900 dark:text-white">
-                          {app.company}
-                        </span>
+
+                    {/* Job Title */}
+
+                    <td className="py-5 font-semibold text-white">
+
+                      {app.job?.title}
+
+                    </td>
+
+                    {/* Company */}
+
+                    <td className="text-slate-300">
+
+                      <div className="flex items-center gap-2">
+
+                        <Building2 size={16}/>
+
+                        {app.job?.company}
+
                       </div>
+
                     </td>
-                    <td className="py-4 px-4 text-slate-600 dark:text-slate-400">
-                      {app.role}
-                    </td>
-                    <td className="py-4 px-4">
-                      <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                        <Calendar className="w-4 h-4" />
-                        {new Date(app.appliedDate).toLocaleDateString()}
+
+                    {/* Location */}
+
+                    <td className="text-slate-300">
+
+                      <div className="flex items-center gap-2">
+
+                        <MapPin size={16}/>
+
+                        {app.job?.location}
+
                       </div>
+
                     </td>
-                    <td className="py-4 px-4">
-                      {getStatusBadge(app.status)}
+
+                    {/* Status */}
+
+                    <td>
+
+                      <span
+                        className={`px-4 py-1 rounded-full text-xs font-medium ${getStatusStyle(app.status)}`}
+                      >
+
+                        {app.status?.charAt(0).toUpperCase() + app.status?.slice(1)}
+
+                      </span>
+
                     </td>
-                    <td className="py-4 px-4">
-                      <button className="flex items-center gap-2 text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors">
-                        <FileText className="w-4 h-4" />
-                        View Details
-                      </button>
-                    </td>
+
                   </motion.tr>
+
                 ))}
+
               </tbody>
+
             </table>
+
           </div>
+
         </Card>
 
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card>
-            <div className="text-center">
-              <p className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
-                {applications.length}
-              </p>
-              <p className="text-sm text-slate-600 dark:text-slate-400">Total Applications</p>
-            </div>
-          </Card>
-          <Card>
-            <div className="text-center">
-              <p className="text-3xl font-bold text-green-600 mb-2">
-                {applications.filter(a => a.status === 'shortlisted').length}
-              </p>
-              <p className="text-sm text-slate-600 dark:text-slate-400">Shortlisted</p>
-            </div>
-          </Card>
-          <Card>
-            <div className="text-center">
-              <p className="text-3xl font-bold text-orange-600 mb-2">
-                {applications.filter(a => a.status === 'pending').length}
-              </p>
-              <p className="text-sm text-slate-600 dark:text-slate-400">Pending</p>
-            </div>
-          </Card>
-        </div>
+        {/* Empty State */}
+
+        {applications.length === 0 && (
+
+          <div className="text-center mt-10 text-slate-400">
+
+            <p>No applications yet.</p>
+
+          </div>
+
+        )}
+
       </div>
+
     </DashboardLayout>
+
   );
+
 };

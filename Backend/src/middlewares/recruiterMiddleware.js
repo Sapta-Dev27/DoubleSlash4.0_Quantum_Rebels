@@ -1,7 +1,7 @@
 const recruiterMiddleware = (req, res, next) => {
   try {
 
-    if (req.userInfo.userRoleFromAccessToken !== "Recruiter") {
+    if (req.userInfo.userRoleFromAccessToken !== "recruiter") {
       return res.status(403).json({
         success: false,
         message: "Access denied. Recruiters only."

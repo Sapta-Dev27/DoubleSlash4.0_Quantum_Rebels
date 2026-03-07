@@ -13,6 +13,7 @@ import { CoverLetter } from "./pages/candidate/CoverLetter";
 import { InterviewPrep } from "./pages/candidate/InterviewPrep";
 import { Jobs } from "./pages/candidate/Jobs";
 import { AppliedJobs } from "./pages/candidate/AppliedJobs";
+import { JobMatch } from "./pages/candidate/JobMatch";
 
 import { RecruiterDashboard } from "./pages/recruiter/Dashboard";
 import { PostJob } from "./pages/recruiter/PostJob";
@@ -73,7 +74,14 @@ function App() {
                 </ProtectedRoute>
               }
             />
-
+            <Route
+              path="/candidate/job-match"
+              element={
+                <ProtectedRoute requiredRole="candidate">
+                  <JobMatch />
+                </ProtectedRoute>
+              }
+            />  
             <Route
               path="/candidate/jobs"
               element={
@@ -92,14 +100,6 @@ function App() {
               }
             />
 
-            <Route
-              path="/recruiter/dashboard"
-              element={
-                <ProtectedRoute requiredRole="recruiter">
-                  <RecruiterDashboard />
-                </ProtectedRoute>
-              }
-            />
 
             <Route
               path="/recruiter/post-job"

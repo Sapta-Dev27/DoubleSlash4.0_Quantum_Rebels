@@ -1,142 +1,293 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
-  Search,
-  MapPin,
   Briefcase,
+  MapPin,
   DollarSign,
-  ExternalLink,
+  Upload,
+  X
 } from "lucide-react";
+
 import { DashboardLayout } from "../../layouts/DashboardLayout";
 import { Card } from "../../components/Card";
-import { Input } from "../../components/Input";
 import { Button } from "../../components/Button";
-import { mockJobs } from "../../services/mockData";
+
+import { jobService } from "../../services/jobService";
+import { applicationService } from "../../services/applicationService";
 
 export const Jobs = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [jobs] = useState(mockJobs);
 
-  const filteredJobs = jobs.filter(
-    (job) =>
-      job.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      job.company.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const [jobs,setJobs] = useState([]);
+  const [selectedJob,setSelectedJob] = useState(null);
+  const [resume,setResume] = useState(null);
+  const [loading,setLoading] = useState(false);
 
-  return (
+  useEffect(()=>{
+    loadJobs();
+  },[]);
+
+  const loadJobs = async () => {
+
+    try{
+
+      const res = await jobService.fetchJobs();
+
+      if(res.success){
+        setJobs(res.data);
+      }
+
+    }catch(err){
+      console.log(err);
+    }
+
+  };
+
+  const handleViewJob = async (id) => {
+
+    try{
+
+      const res = await jobService.fetchJobById(id);
+
+      if(res.success){
+        setSelectedJob(res.data);
+      }
+
+    }catch(err){
+      console.log(err);
+    }
+
+  };
+
+  const handleApply = async () => {
+
+    if(!resume){
+      alert("Please upload your resume first");
+      return;
+    }
+
+    try{
+
+      setLoading(true);
+
+      const res = await applicationService.applyJob(
+        selectedJob._id,
+        resume
+      );
+
+      if(res.success){
+
+        alert(res.message);
+
+        setSelectedJob(null);
+        setResume(null);
+
+      }
+
+    }
+    catch(err){
+
+      const message =
+        err?.response?.data?.message ||
+        "Something went wrong";
+
+      alert(message);
+
+    }
+
+    setLoading(false);
+
+  };
+
+  return(
+
     <DashboardLayout role="candidate">
+
       <div className="max-w-6xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
-            Job Recommendations
-          </h1>
 
-          <p className="text-slate-600 dark:text-slate-400">
-            Discover opportunities tailored to your profile
-          </p>
-        </motion.div>
+        <h1 className="text-3xl font-bold text-white mb-6">
+          Job Recommendations
+        </h1>
 
-        {/* Search Card */}
-
-        <Card className="mb-6">
-          <div className="flex gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-4 top-4 w-5 h-5 text-slate-400" />
-
-              <Input
-                placeholder="Search by role or company..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12"
-              />
-            </div>
-
-            <Button>
-              <Search className="w-5 h-5" />
-              Search
-            </Button>
-          </div>
-        </Card>
-
-        {/* Jobs Grid */}
+        {/* JOB LIST */}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {filteredJobs.map((job, index) => (
-            <motion.div
-              key={job.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
+
+          {jobs.map(job => (
+
+            <Card
+              key={job._id}
+              hover
+              className="cursor-pointer"
             >
-              <Card hover>
-                <div className="flex items-start justify-between mb-4">
+
+              {/* JOB CARD CLICK AREA */}
+
+              <div
+                onClick={()=>handleViewJob(job._id)}
+              >
+
+                <div className="flex justify-between items-start">
+
                   <div>
-                    <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-1">
-                      {job.role}
+
+                    <h3 className="text-xl font-bold text-white">
+                      {job.title}
                     </h3>
 
-                    <p className="text-blue-600 font-medium">{job.company}</p>
+                    <p className="text-blue-400">
+                      {job.company}
+                    </p>
+
                   </div>
 
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center">
-                    <Briefcase className="w-6 h-6 text-white" />
-                  </div>
+                  <Briefcase className="text-blue-500"/>
+
                 </div>
 
-                <p className="text-slate-600 dark:text-slate-400 mb-4 line-clamp-2">
-                  {job.description}
-                </p>
+                <div className="mt-4 space-y-2 text-slate-400 text-sm">
 
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                    <MapPin className="w-4 h-4" />
+                  <div className="flex gap-2">
+                    <MapPin size={16}/>
                     {job.location}
                   </div>
 
-                  <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                    <Briefcase className="w-4 h-4" />
-                    {job.experience}
-                  </div>
-
-                  <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                    <DollarSign className="w-4 h-4" />
+                  <div className="flex gap-2">
+                    <DollarSign size={16}/>
                     {job.salary}
                   </div>
+
                 </div>
 
-                <div className="flex gap-3">
-                  <Button className="flex-1" size="sm">
-                    Apply Now
-                    <ExternalLink className="w-4 h-4" />
-                  </Button>
+              </div>
 
-                  <Button variant="outline" size="sm">
-                    Save
-                  </Button>
-                </div>
-              </Card>
-            </motion.div>
+              {/* APPLY BUTTON ON CARD */}
+
+              <Button
+                className="w-full mt-4"
+                size="sm"
+                onClick={(e)=>{
+                  e.stopPropagation();
+                  handleViewJob(job._id);
+                }}
+              >
+                Apply Now
+              </Button>
+
+            </Card>
+
           ))}
+
         </div>
 
-        {/* Empty State */}
-
-        {filteredJobs.length === 0 && (
-          <Card>
-            <div className="text-center py-12">
-              <Briefcase className="w-16 h-16 text-slate-300 dark:text-slate-700 mx-auto mb-4" />
-
-              <p className="text-slate-600 dark:text-slate-400">
-                No jobs found matching your search
-              </p>
-            </div>
-          </Card>
-        )}
       </div>
+
+
+      {/* JOB DETAILS MODAL */}
+
+      {selectedJob && (
+
+        <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-md z-50">
+
+          <motion.div
+            initial={{scale:0.9,opacity:0}}
+            animate={{scale:1,opacity:1}}
+            className="bg-slate-900 p-8 rounded-xl w-[600px] border border-slate-700"
+          >
+
+            {/* HEADER */}
+
+            <div className="flex justify-between items-center mb-6">
+
+              <div>
+
+                <h2 className="text-2xl font-bold text-white">
+                  {selectedJob.title}
+                </h2>
+
+                <p className="text-blue-400">
+                  {selectedJob.company}
+                </p>
+
+              </div>
+
+              <button
+                onClick={()=>setSelectedJob(null)}
+                className="text-slate-400 hover:text-white"
+              >
+                <X/>
+              </button>
+
+            </div>
+
+
+            {/* JOB DETAILS */}
+
+            <div className="space-y-3 mb-6 text-slate-300">
+
+              <div className="flex gap-2">
+                <MapPin size={16}/>
+                {selectedJob.location}
+              </div>
+
+              <div className="flex gap-2">
+                <DollarSign size={16}/>
+                {selectedJob.salary}
+              </div>
+
+            </div>
+
+            <p className="text-slate-300 mb-8">
+              {selectedJob.description}
+            </p>
+
+
+            {/* APPLY SECTION */}
+
+            <div className="border-t border-slate-700 pt-6">
+
+              <h3 className="text-white font-semibold mb-4">
+                Apply for this job
+              </h3>
+
+              {/* RESUME UPLOAD */}
+
+              <label className="flex items-center gap-3 bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 cursor-pointer hover:bg-slate-700 transition">
+
+                <Upload size={18}/>
+
+                <span className="text-sm text-slate-300">
+                  {resume ? resume.name : "Upload Resume"}
+                </span>
+
+                <input
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  onChange={(e)=>setResume(e.target.files[0])}
+                  className="hidden"
+                />
+
+              </label>
+
+              {/* APPLY BUTTON */}
+
+              <Button
+                className="w-full mt-4"
+                onClick={handleApply}
+                disabled={loading}
+              >
+                {loading ? "Applying..." : "Apply Job"}
+              </Button>
+
+            </div>
+
+          </motion.div>
+
+        </div>
+
+      )}
+
     </DashboardLayout>
+
   );
+
 };

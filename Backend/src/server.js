@@ -12,6 +12,7 @@ import jobRoutes from "./routes/jobRoutes.js";
 import ApplicationRoutes from "./routes/applicationRoutes.js";
 import CandidateRoutes from "./routes/candidateRoutes.js";
 import RecruiterRoutes from "./routes/recruiterRoutes.js";
+import dashboardRoutes from "./routes/dashboardRoutes.js"
 import cors from 'cors';
 
 
@@ -53,6 +54,7 @@ app.use('/api/job', jobRoutes);
 app.use('/api/application', ApplicationRoutes);
 app.use('/api/candidate',CandidateRoutes);
 app.use('/api/recruiter',RecruiterRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
