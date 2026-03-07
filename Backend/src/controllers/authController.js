@@ -221,10 +221,92 @@ const updateUsername=async(req,res)=>{
     }
 }
 
+const updateEmail=async(req,res)=>{
+    try{
+        const {username,newemail}=req.body;
+        if(!username || !newemail)
+        {
+            return res.status(400).json(
+                {
+                    success:false,
+                    message:"Input fields are missing . Pls provide all the input fields"
+                }
+            )
+        }
+        const findUser=await User.findOne({userName:username})
+        if(!findUser)
+        {
+            return res.status(404).json({
+                success:false,
+                message:"User does not exist.Pls provide the correct username"
+            })
+        }
+
+        const checkExistingEmail=await User.findOne({userEmail:newemail});
+        if(checkExistingEmail)
+        {
+            return res.status(404).json(
+                {
+                    success:false,
+                    message:"User with given email already exists . Pls provide a different email"
+                }
+            )
+        }
+        const updateEmail=await User.updateOne({userName:username},{$set:{userEmail:newemail}})
+        if(!updateEmail)
+        {
+            return res.status(404).json(
+                {
+                  success:false,
+                  message:"Failed to update the email"
+                }
+            )
+        }
+
+        const findUpdatedUser=await User.findOne(
+            {
+                userName:username
+            }
+        )
+        if(findUpdatedUser)
+        {
+            return res.status(200).json(
+                { 
+                    success:true,
+                    message:"Email successfully changed",
+                    data:findUpdatedUser
+                }
+            )
+        }
+    }
+
+    catch(e)
+    {
+       console.log("INTERNAL SERVER ERROR!!",e);
+       
+            return res.status(500).json(
+            {
+                success:false,
+                message:"INTERNAL SERVER ERROR"
+            }
+        )      
+    }
+}
+
+
 
 
 
 
 export{
-    RegisterUser,LoginUser,updateUsername
+    RegisterUser,LoginUser,updateUsername,updateEmail
 }
+
+
+
+
+
+
+
+
+
