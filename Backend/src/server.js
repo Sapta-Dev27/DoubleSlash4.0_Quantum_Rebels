@@ -6,9 +6,10 @@ import resumeRoutes from "./routes/resumeRoutes.js";
 import analysisRoutes from "./routes/analysisRoutes.js";
 import interviewPrepRoutes from "./routes/interviewPrep.js"
 import authRoutes from "./routes/authRoutes.js";
-import authRoutes from "./routes/authRoutes.js";
 import letterRoutes from "./routes/letterRoutes.js";
 import jobMatchRoute from "./routes/jobMatchRoute.js";
+import jobRoutes from "./routes/jobRoutes.js";
+import ApplicationRoutes from "./routes/applicationRoutes.js";
 
 
 const PORT = process.env.PORT || 8001;
@@ -22,13 +23,15 @@ app.get('/health', (req, res) => {
     message: "Server is LIVE"
   })
 })
-app.use('/api/auth',authRoutes);
+app.use('/api/auth', authRoutes);
 app.use('/api/interview', interviewRoutes);
 app.use('/api/resume', resumeRoutes);
 app.use('/api/resumeAnalyzer', analysisRoutes);
 app.use('/api/interviewPrep', interviewPrepRoutes);
 app.use('/api/coverLetter', letterRoutes);
 app.use('/api/jobMatch', jobMatchRoute);
+app.use('/api/job', jobRoutes);
+app.use('/api/application', ApplicationRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

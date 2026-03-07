@@ -1,29 +1,26 @@
-const mongoose=require('mongoose');
-const job = require('./job');
+import mongoose from 'mongoose';
 
-const applicationSchema=new mongoose.Schema(
-    {
-        candidate:{
-            type:mongoose.Schema.Types.ObjectId,
-            ref:"User",
-            required:true,
-        },
-        job:{
-            type:mongoose.Schema.Types.ObjectId,
-            ref:"Job",
-            required:true,
-        },
-        resume:{
-            type:mongoose.Schema.Types.ObjectId,
-            ref:"Resume",
-        },
-        status:{
-            type:String,
-            enum:['pending','shortlisted','rejected'],
-            default:'pending',
-        },
+const applicationschema=new mongoose.Schema({
+    job : {
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"Job",
+        required:true,
+    } , 
+    candidate : {
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"User",
     },
-    {timestamps:true}
-);
-applicationSchema.index({candidate:1, job:1},{unique:true});
-module.exports=mongoose.model("Application",applicationSchema);
+    resumeURL  : {
+        type : String,
+    },
+    status : {
+        type : String,
+        default : 'applied',
+    }
+} , {
+    timeseries : true
+})
+
+
+const ApplicationModel = mongoose.model("Application", applicationschema);  
+export default ApplicationModel;
