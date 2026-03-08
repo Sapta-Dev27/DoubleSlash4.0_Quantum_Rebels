@@ -21,6 +21,7 @@ import { RecruiterDashboard } from "./pages/recruiter/Dashboard";
 import { PostJob } from "./pages/recruiter/PostJob";
 import { ManageJobs } from "./pages/recruiter/ManageJobs";
 import { Applicants } from "./pages/recruiter/Applicants";
+import ProjectAnalyzer  from "./pages/recruiter/GithubAgent";
 
 function App() {
   return (
@@ -152,6 +153,15 @@ function App() {
               element={
                 <ProtectedRoute requiredRole="recruiter">
                   <Applicants />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/recruiter/github-agent"
+              element={
+                <ProtectedRoute requiredRole="recruiter">
+                  <ProjectAnalyzer/>
                 </ProtectedRoute>
               }
             />

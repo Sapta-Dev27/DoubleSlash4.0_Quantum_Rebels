@@ -33,17 +33,19 @@ export const DashboardLayout = ({ children, role }) => {
     { label: 'Resume Analyzer', path: '/candidate/resume-analyzer', icon: <FileText className="w-5 h-5" /> },
     { label: 'Cover Letter', path: '/candidate/cover-letter', icon: <FileText className="w-5 h-5" /> },
     { label: 'Interview Prep', path: '/candidate/interview-prep', icon: <BookOpen className="w-5 h-5" /> },
-    {label : 'Job Match', path: '/candidate/job-match', icon: <FileText className="w-5 h-5" />},
+    { label: 'Job Match', path: '/candidate/job-match', icon: <FileText className="w-5 h-5" /> },
     { label: 'New Jobs', path: '/candidate/jobs', icon: <Briefcase className="w-5 h-5" /> },
-    { label: 'Applied Jobs', path: '/candidate/applied-jobs', icon: <CheckSquare className="w-5 h-5" /> } ,
-    { label: 'Jobs Scrapper', path: '/candidate/job-scraper', icon: <CheckSquare className="w-5 h-5" /> } ,
-    { label: 'Referral Agent', path: '/candidate/referral-agent', icon: <CheckSquare className="w-5 h-5" /> } ,
+    { label: 'Applied Jobs', path: '/candidate/applied-jobs', icon: <CheckSquare className="w-5 h-5" /> },
+    { label: 'Jobs Scrapper', path: '/candidate/job-scraper', icon: <CheckSquare className="w-5 h-5" /> },
+    { label: 'Referral Agent', path: '/candidate/referral-agent', icon: <CheckSquare className="w-5 h-5" /> },
   ];
 
   const recruiterNavItems = [
+    { label: 'Dashbaord', path: '/recruiter/dashboard', icon: <PlusCircle className="w-5 h-5" /> },
     { label: 'Post Job', path: '/recruiter/post-job', icon: <PlusCircle className="w-5 h-5" /> },
     { label: 'Manage Jobs', path: '/recruiter/manage-jobs', icon: <Briefcase className="w-5 h-5" /> },
-    { label: 'Applicants', path: '/recruiter/applicants', icon: <Users className="w-5 h-5" /> }
+    { label: 'Applicants', path: '/recruiter/applicants', icon: <Users className="w-5 h-5" /> },
+    { label: 'Github Agent', path: '/recruiter/github-agent', icon: <Users className="w-5 h-5" /> }
   ];
 
   const navItems = role === 'candidate' ? candidateNavItems : recruiterNavItems;
@@ -114,8 +116,8 @@ export const DashboardLayout = ({ children, role }) => {
                       key={item.path}
                       to={item.path}
                       className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${isActive
-                          ? 'bg-blue-50 dark:bg-blue-950 text-blue-600 font-medium'
-                          : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700'
+                        ? 'bg-blue-50 dark:bg-blue-950 text-blue-600 font-medium'
+                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700'
                         }`}
                     >
                       {item.icon}

@@ -9,50 +9,42 @@ import { Button } from "../../components/Button";
 
 export const JobScraper = () => {
 
-  const [role,setRole] = useState("");
-  const [location,setLocation] = useState("");
-  const [jobs,setJobs] = useState([]);
-  const [loading,setLoading] = useState(false);
+  const [role, setRole] = useState("");
+  const [location, setLocation] = useState("");
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const handleSearch = async () => {
 
-    try{
+    if (!role || !location) return;
+
+    try {
 
       setLoading(true);
 
-      await axios.post("http://localhost:8000/api/ai/job-scraper",{
-        role,
-        location
-      });
+      const res = await axios.post(
+        "https://quantam123456789.app.n8n.cloud/webhook/4ce871a5-ea72-48ea-b539-0c2bb96c0478",
+        {
+          role,
+          location
+        }
+      );
 
-      setTimeout(fetchJobs,3000);
+      setJobs(res.data);
 
-    }catch(err){
+    } catch (err) {
+
       console.log(err);
+
+    } finally {
+
+      setLoading(false);
+
     }
 
   };
 
-  const fetchJobs = async () => {
-
-    try{
-
-      const res = await axios.get("http://localhost:8000/api/ai/jobs");
-
-      if(res.data.success){
-        setJobs(res.data.data);
-      }
-
-      setLoading(false);
-
-    }catch(err){
-      console.log(err);
-      setLoading(false);
-    }
-
-  };
-
-  return(
+  return (
 
     <DashboardLayout role="candidate">
 
@@ -64,18 +56,18 @@ export const JobScraper = () => {
 
         <Card className="mb-6">
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid md:grid-cols-2 gap-4">
 
             <Input
               placeholder="Role (AI Engineer)"
               value={role}
-              onChange={(e)=>setRole(e.target.value)}
+              onChange={(e) => setRole(e.target.value)}
             />
 
             <Input
               placeholder="Location (Kolkata)"
               value={location}
-              onChange={(e)=>setLocation(e.target.value)}
+              onChange={(e) => setLocation(e.target.value)}
             />
 
           </div>
@@ -83,44 +75,49 @@ export const JobScraper = () => {
           <Button
             className="mt-4 w-full"
             onClick={handleSearch}
+            isLoading={loading}
           >
             Search Jobs
           </Button>
 
         </Card>
 
-
         <div className="grid md:grid-cols-2 gap-6">
 
-          {jobs.map((job,index)=>(
+          {jobs.map((job, index) => (
 
             <motion.div
-              key={job._id}
-              initial={{opacity:0,y:20}}
-              animate={{opacity:1,y:0}}
-              transition={{delay:index*0.1}}
+              key={job.id || index}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
             >
 
               <Card>
 
-                <h3 className="text-xl font-bold text-white">
-                  {job.TITLE}
+                <h3 className="text-xl font-bold text-white mb-2">
+                  {job.title}
                 </h3>
 
-                <p className="text-slate-400 text-sm mb-3">
-                  {job.LOCATION}
+                <p className="text-slate-400 text-sm mb-1">
+                  📅 Posted: {new Date(job.postedDate).toLocaleDateString()}
                 </p>
 
-                <p className="text-slate-300 text-sm mb-4 line-clamp-3">
-                  {job.DESCRIPTION}
+                <p className="text-slate-400 text-sm mb-3">
+                  💼 Employment: {job.employmentType || "Not specified"}
+                </p>
+
+                <p className="text-slate-300 text-sm mb-4 line-clamp-4">
+                  {job.descriptionText}
                 </p>
 
                 <a
-                  href={job.URL}
+                  href={job.linkedinUrl}
                   target="_blank"
-                  className="text-blue-400"
+                  rel="noopener noreferrer"
+                  className="text-blue-400 font-medium hover:underline"
                 >
-                  View Job
+                  View on LinkedIn →
                 </a>
 
               </Card>

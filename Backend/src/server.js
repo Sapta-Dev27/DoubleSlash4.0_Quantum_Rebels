@@ -14,6 +14,7 @@ import CandidateRoutes from "./routes/candidateRoutes.js";
 import RecruiterRoutes from "./routes/recruiterRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js"
 import aiAgentRoutes from "./routes/aiAgents.js";
+import recruiterDashboard from "./routes/recruiterDashboard.js";
 import cors from 'cors';
 
 
@@ -56,6 +57,7 @@ app.use('/api/application', ApplicationRoutes);
 app.use('/api/candidate',CandidateRoutes);
 app.use('/api/recruiter',RecruiterRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/recruiterDashboard', recruiterDashboard);
 app.use('/api/ai', aiAgentRoutes);
 
 app.listen(PORT, () => {
