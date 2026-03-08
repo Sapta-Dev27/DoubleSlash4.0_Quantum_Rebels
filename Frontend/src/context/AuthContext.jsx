@@ -31,31 +31,41 @@ export const AuthProvider = ({ children }) => {
     setIsLoading(false);
   }, []);
 
-  const login = async (email, password, role) => {
-    setIsLoading(true);
+ const login = async (email, password) => {
 
-    try {
+  setIsLoading(true);
 
-      const data = await authService.login(email, password);
+  try {
 
-      const userData = {
-        id: data.data._id,
-        name: data.data.userName,
-        email: data.data.userEmail,
-        role: data.data.userRole
-      };
+    const response = await authService.login(email, password);
 
-      storage.setToken(data.accessToken);
-      storage.setUser(JSON.stringify(userData));
+    const userData = {
+      id: response.data._id,
+      name: response.data.userName,
+      email: response.data.userEmail,
+      role: response.data.userRole
+    };
 
-      setUser(userData);
+    const token = response.accessToken || response.data?.accessToken;
 
-    } catch (error) {
-      throw new Error(error?.response?.data?.message || "Login failed");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    storage.setToken(token);
+    storage.setUser(JSON.stringify(userData));
+
+    setUser(userData);
+
+    return userData;
+
+  } catch (error) {
+
+    throw new Error(error?.response?.data?.message || "Login failed");
+
+  } finally {
+
+    setIsLoading(false);
+
+  }
+
+};
 
   const register = async (name, email, password, role) => {
 
@@ -76,6 +86,8 @@ export const AuthProvider = ({ children }) => {
       storage.setUser(JSON.stringify(userData));
 
       setUser(userData);
+
+      return userData;
 
     } catch (error) {
       throw new Error(error?.response?.data?.message || "Registration failed");

@@ -8,7 +8,6 @@ const groq = new Groq({
 
 const generateMockInterview = async (resumeText) => {
 
-
   const trimmedResume = resumeText.slice(0, 6000);
 
   const prompt = `
@@ -17,7 +16,7 @@ You are a senior software engineer conducting a realistic technical interview.
 Analyze the following candidate resume and generate a mock interview.
 
 RESUME:
-${resumeText}
+${trimmedResume}
 
 Create 4 interview rounds:
 
@@ -34,19 +33,23 @@ Requirements:
 - Questions should resemble real software engineering interviews
 - Mix conceptual, practical, and scenario-based questions
 
-Each question should include:
+Each question MUST include:
 
 - question
+- answer (clear, concise, ideal interview answer)
 - difficulty (easy | medium | hard)
 - focus area (e.g., authentication, database design, system design, teamwork)
 
-Return ONLY valid JSON in this format:
+Return ONLY valid JSON.
+
+Format:
 
 {
   "rounds": {
     "technical": [
       {
         "question": "",
+        "answer": "",
         "difficulty": "",
         "focus": ""
       }
@@ -57,8 +60,10 @@ Return ONLY valid JSON in this format:
   }
 }
 
-Do not include explanations or markdown.
-Return JSON only.
+Strict Rules:
+- Do NOT include markdown
+- Do NOT include explanations
+- Return JSON only
 `;
 
   const response = await groq.chat.completions.create({
@@ -78,7 +83,6 @@ Return JSON only.
 
   const rawOutput = response.choices[0].message.content;
 
-  // Extract JSON safely
   const jsonMatch = rawOutput.match(/\{[\s\S]*\}/);
 
   if (!jsonMatch) {
@@ -203,7 +207,20 @@ Return ONLY valid JSON in the following format:
   "strengths": [],
   "weaknesses": [],
   "missing_keywords": [],
-  "suggestions": []
+  "suggestions": [],
+  "learning_resources": [
+    {
+      "topic": "",
+      "reason": "",
+      "resources": [
+        {
+          "title": "",
+          "platform": "",
+          "url": ""
+        }
+      ]
+    }
+  ]
 }
 
 Rules:
@@ -211,8 +228,18 @@ Rules:
 - Strengths must highlight what the candidate did well
 - Weaknesses must highlight what is missing or poorly written
 - Missing keywords should be important industry keywords not present in the resume
-- Skill analysis should categorize candidate skills
 - Suggestions should provide actionable improvements
+- For each weakness, recommend learning resources
+- Resources must include trusted platforms like:
+  - Coursera
+  - freeCodeCamp
+  - YouTube
+  - LeetCode
+  - GeeksforGeeks
+  - roadmap.sh
+  - official documentation
+- Include direct URLs
+- Keep resources relevant to the weakness
 - Return JSON only
 - Do NOT include explanations
 `;
@@ -222,7 +249,12 @@ Rules:
     messages: [
       {
         role: "system",
-        content: "You analyze resumes and return structured JSON only."
+        content: `
+You analyze resumes and return structured JSON only.
+Never include markdown.
+Never include explanations.
+Only valid JSON.
+`
       },
       {
         role: "user",

@@ -9,6 +9,7 @@ import { Select } from '../components/Select';
 import { ROLES } from '../utils/constants';
 
 export const Login = () => {
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('candidate');
@@ -19,35 +20,46 @@ export const Login = () => {
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
+
     e.preventDefault();
     setError('');
     setIsLoading(true);
 
     try {
-      await login(email, password, role);
+
+      const userData = await login(email, password);
 
       navigate(
-        role === 'candidate'
+        userData.role === 'candidate'
           ? '/candidate/dashboard'
           : '/recruiter/dashboard'
       );
+
     } catch (err) {
+
       setError('Invalid credentials. Please try again.');
+
     } finally {
+
       setIsLoading(false);
+
     }
+
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 flex items-center justify-center p-4">
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md"
       >
+
         <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl shadow-2xl p-8 border border-white/20">
 
           <div className="text-center mb-8">
+
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
@@ -64,6 +76,7 @@ export const Login = () => {
             <p className="text-slate-600 dark:text-slate-400">
               Sign in to your account to continue
             </p>
+
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -79,6 +92,7 @@ export const Login = () => {
             />
 
             <div className="relative">
+
               <Mail className="absolute left-4 top-[46px] w-5 h-5 text-slate-400" />
 
               <Input
@@ -90,9 +104,11 @@ export const Login = () => {
                 className="pl-12"
                 required
               />
+
             </div>
 
             <div className="relative">
+
               <Lock className="absolute left-4 top-[46px] w-5 h-5 text-slate-400" />
 
               <Input
@@ -104,9 +120,11 @@ export const Login = () => {
                 className="pl-12"
                 required
               />
+
             </div>
 
             {error && (
+
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -114,16 +132,21 @@ export const Login = () => {
               >
                 {error}
               </motion.div>
+
             )}
 
             <Button type="submit" className="w-full" isLoading={isLoading}>
+
               <LogIn className="w-5 h-5" />
+
               Sign In
+
             </Button>
 
           </form>
 
           <div className="mt-6 text-center">
+
             <p className="text-slate-600 dark:text-slate-400">
               Don't have an account?{' '}
               <Link
@@ -133,10 +156,13 @@ export const Login = () => {
                 Sign up
               </Link>
             </p>
+
           </div>
 
         </div>
+
       </motion.div>
+
     </div>
   );
 };

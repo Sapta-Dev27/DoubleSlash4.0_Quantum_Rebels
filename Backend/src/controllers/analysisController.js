@@ -30,7 +30,8 @@ const analyzeResume = async (req, res) => {
       strength: aiAnalysis.strengths,
       weakness: aiAnalysis.weaknesses,
       missingKeywords: aiAnalysis.missing_keywords,
-      suggestions: aiAnalysis.suggestions
+      suggestions: aiAnalysis.suggestions ,
+      learningResources: aiAnalysis.learning_resources
     })
 
     if (!savedAnalysis) {

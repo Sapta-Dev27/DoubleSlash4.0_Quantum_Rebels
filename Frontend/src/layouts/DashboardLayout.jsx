@@ -34,9 +34,10 @@ export const DashboardLayout = ({ children, role }) => {
     { label: 'Cover Letter', path: '/candidate/cover-letter', icon: <FileText className="w-5 h-5" /> },
     { label: 'Interview Prep', path: '/candidate/interview-prep', icon: <BookOpen className="w-5 h-5" /> },
     {label : 'Job Match', path: '/candidate/job-match', icon: <FileText className="w-5 h-5" />},
-    { label: 'Job Recommendations', path: '/candidate/jobs', icon: <Briefcase className="w-5 h-5" /> },
+    { label: 'New Jobs', path: '/candidate/jobs', icon: <Briefcase className="w-5 h-5" /> },
     { label: 'Applied Jobs', path: '/candidate/applied-jobs', icon: <CheckSquare className="w-5 h-5" /> } ,
-
+    { label: 'Jobs Scrapper', path: '/candidate/job-scraper', icon: <CheckSquare className="w-5 h-5" /> } ,
+    { label: 'Referral Agent', path: '/candidate/referral-agent', icon: <CheckSquare className="w-5 h-5" /> } ,
   ];
 
   const recruiterNavItems = [

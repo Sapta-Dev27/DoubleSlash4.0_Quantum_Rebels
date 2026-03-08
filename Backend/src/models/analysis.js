@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 
 const analysisSchema = new mongoose.Schema({
-  user : {
+  user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true
@@ -31,10 +31,12 @@ const analysisSchema = new mongoose.Schema({
   ],
   suggestions: [
     {
-      type : String
+      type: String
     }
-  ]
-} , {
+  ],
+  learningResources: [
+    Object]
+}, {
   timestamps: true
 })
 

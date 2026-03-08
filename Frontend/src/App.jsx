@@ -14,6 +14,8 @@ import { InterviewPrep } from "./pages/candidate/InterviewPrep";
 import { Jobs } from "./pages/candidate/Jobs";
 import { AppliedJobs } from "./pages/candidate/AppliedJobs";
 import { JobMatch } from "./pages/candidate/JobMatch";
+import { JobScraper } from "./pages/candidate/jobScraper";
+import { ReferralAgent } from './pages/candidate/ReferralAgent';
 
 import { RecruiterDashboard } from "./pages/recruiter/Dashboard";
 import { PostJob } from "./pages/recruiter/PostJob";
@@ -35,6 +37,14 @@ function App() {
               element={
                 <ProtectedRoute requiredRole="candidate">
                   <CandidateDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/recruiter/dashboard"
+              element={
+                <ProtectedRoute requiredRole="recruiter">
+                  <RecruiterDashboard />
                 </ProtectedRoute>
               }
             />
@@ -81,7 +91,25 @@ function App() {
                   <JobMatch />
                 </ProtectedRoute>
               }
-            />  
+            />
+
+            <Route
+              path="/candidate/referral-agent"
+              element={
+                <ProtectedRoute requiredRole="candidate">
+                  <ReferralAgent />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/candidate/job-scraper"
+              element={
+                <ProtectedRoute requiredRole="candidate">
+                  <JobScraper />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/candidate/jobs"
               element={

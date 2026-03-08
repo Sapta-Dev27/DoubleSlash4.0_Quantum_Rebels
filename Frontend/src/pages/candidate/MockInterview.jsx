@@ -72,7 +72,17 @@ export const MockInterview = () => {
         throw new Error(response.message);
       }
 
-      setRounds(response.data.rounds || {});
+      const generatedRounds = response.data.rounds || {};
+
+      // Keep only questions for newly generated interview
+      const questionOnlyRounds = Object.keys(generatedRounds).reduce((acc, key) => {
+        acc[key] = generatedRounds[key].map(q => ({
+          question: q.question
+        }));
+        return acc;
+      }, {});
+
+      setRounds(questionOnlyRounds);
       setIsGenerated(true);
 
       fetchAllInterviews();
@@ -325,8 +335,6 @@ export const MockInterview = () => {
             className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-[90%] max-w-3xl max-h-[80vh] overflow-hidden"
           >
 
-            {/* Header */}
-
             <div className="flex justify-between items-center px-6 py-4 border-b">
 
               <h2 className="text-xl font-bold">
@@ -341,8 +349,6 @@ export const MockInterview = () => {
               </button>
 
             </div>
-
-            {/* Questions */}
 
             <div className="p-6 overflow-y-auto max-h-[65vh] space-y-6">
 
@@ -372,9 +378,27 @@ export const MockInterview = () => {
                             Q{i + 1}: {q.question}
                           </p>
 
+                          {/* Tags */}
+
+                          <div className="flex gap-2 mt-2 flex-wrap">
+
+                            {q.difficulty && (
+                              <span className="text-xs px-2 py-1 rounded-full bg-red-100 text-red-600">
+                                {q.difficulty}
+                              </span>
+                            )}
+
+                            {q.focus && (
+                              <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-600">
+                                {q.focus}
+                              </span>
+                            )}
+
+                          </div>
+
                           {q.answer && (
 
-                            <p className="text-sm text-slate-600 mt-2">
+                            <p className="text-sm text-slate-600 mt-3">
                               <span className="font-semibold">
                                 Answer:
                               </span>{" "}

@@ -271,6 +271,72 @@ export const ResumeAnalyzer = () => {
 
             </Card>
 
+            {/* Learning Resources */}
+
+            {analysis.learningResources && (
+
+              <Card>
+
+                <div className="flex items-center gap-3 mb-4">
+
+                  <TrendingUp className="text-purple-600" />
+
+                  <h3 className="text-xl font-bold">
+                    Learning Resources
+                  </h3>
+
+                </div>
+
+                <div className="space-y-6">
+
+                  {analysis.learningResources.map((resource, i) => (
+
+                    <div key={i} className="border rounded-lg p-4">
+
+                      <h4 className="font-semibold text-lg mb-1">
+                        {resource.topic}
+                      </h4>
+
+                      <p className="text-sm text-gray-500 mb-3">
+                        {resource.reason}
+                      </p>
+
+                      <div className="space-y-2">
+
+                        {resource.resources.map((link, j) => (
+
+                          <a
+                            key={j}
+                            href={link.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block p-3 rounded-md border hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+                          >
+
+                            <p className="font-medium">
+                              {link.title}
+                            </p>
+
+                            <p className="text-xs text-gray-500">
+                              {link.platform}
+                            </p>
+
+                          </a>
+
+                        ))}
+
+                      </div>
+
+                    </div>
+
+                  ))}
+
+                </div>
+
+              </Card>
+
+            )}
+
           </motion.div>
 
         )}
@@ -328,14 +394,10 @@ export const ResumeAnalyzer = () => {
 
         <div className="fixed inset-0 z-50 flex items-center justify-center">
 
-          {/* Overlay */}
-
           <div
             className="absolute inset-0 bg-black/40 backdrop-blur-md"
             onClick={() => setSelectedAnalysis(null)}
           />
-
-          {/* Modal */}
 
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
@@ -346,8 +408,6 @@ export const ResumeAnalyzer = () => {
     bg-white/10 backdrop-blur-xl 
     shadow-2xl p-8 text-white"
           >
-
-            {/* Header */}
 
             <div className="flex justify-between items-center mb-6">
 
@@ -363,8 +423,6 @@ export const ResumeAnalyzer = () => {
               </button>
 
             </div>
-
-            {/* ATS Score */}
 
             <div className="mb-6 text-center">
 
@@ -455,6 +513,70 @@ export const ResumeAnalyzer = () => {
               ))}
 
             </div>
+
+            {/* Learning Resources */}
+
+            {selectedAnalysis.learningResources && (
+
+              <div className="mt-6">
+
+                <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <TrendingUp size={18} />
+                  Learning Resources
+                </h3>
+
+                <div className="space-y-6">
+
+                  {selectedAnalysis.learningResources.map((resource, i) => (
+
+                    <div
+                      key={i}
+                      className="p-4 rounded-xl border border-white/10 bg-white/5"
+                    >
+
+                      <h4 className="font-semibold text-lg mb-1">
+                        {resource.topic}
+                      </h4>
+
+                      <p className="text-sm text-gray-300 mb-3">
+                        {resource.reason}
+                      </p>
+
+                      <div className="space-y-2">
+
+                        {resource.resources.map((link, j) => (
+
+                          <a
+                            key={j}
+                            href={link.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block p-3 rounded-lg bg-white/10 hover:bg-white/20 transition"
+                          >
+
+                            <p className="font-medium">
+                              {link.title}
+                            </p>
+
+                            <p className="text-xs text-gray-300">
+                              {link.platform}
+                            </p>
+
+                          </a>
+
+                        ))}
+
+                      </div>
+
+                    </div>
+
+                  ))}
+
+                </div>
+
+              </div>
+
+            )}
 
           </motion.div>
 
