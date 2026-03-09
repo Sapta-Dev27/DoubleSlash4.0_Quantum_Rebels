@@ -7,6 +7,8 @@ import { Card } from "../../components/Card";
 import { Input } from "../../components/Input";
 import { Button } from "../../components/Button";
 
+const GITHUB_AGENT_URL = import.meta.env.VITE_GITHUB_AGENT_URL ;
+
  const ProjectAnalyzer = () => {
 
   const [url,setUrl] = useState("");
@@ -22,7 +24,7 @@ import { Button } from "../../components/Button";
       setLoading(true);
 
       const res = await axios.post(
-        "https://quantam123456789.app.n8n.cloud/webhook/project-rating",
+        GITHUB_AGENT_URL,
         {
           url:url
         }

@@ -7,6 +7,8 @@ import { Briefcase, Users, CheckCircle, Clock } from "lucide-react";
 import { Card } from "../../components/Card";
 import { DashboardLayout } from "../../layouts/DashboardLayout";
 
+const API_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
+
 export const RecruiterDashboard = () => {
 
   const [stats,setStats] = useState({
@@ -23,7 +25,7 @@ export const RecruiterDashboard = () => {
     try{
 
       const res = await axios.get(
-        "http://localhost:8000/api/recruiterDashboard/stats",
+        `${API_URL}/api/recruiterDashboard/stats`,
         {
           headers:{
             Authorization:`Bearer ${localStorage.getItem("token")}`

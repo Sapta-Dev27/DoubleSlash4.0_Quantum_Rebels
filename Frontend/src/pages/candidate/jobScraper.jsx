@@ -14,6 +14,9 @@ export const JobScraper = () => {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(false);
 
+
+  const JOB_SCRAPPER_URL = import.meta.env.VITE_JOB_SCRAPPER_URL 
+
   const handleSearch = async () => {
 
     if (!role || !location) return;
@@ -23,7 +26,7 @@ export const JobScraper = () => {
       setLoading(true);
 
       const res = await axios.post(
-        "https://quantam123456789.app.n8n.cloud/webhook/4ce871a5-ea72-48ea-b539-0c2bb96c0478",
+        JOB_SCRAPPER_URL,
         {
           role,
           location

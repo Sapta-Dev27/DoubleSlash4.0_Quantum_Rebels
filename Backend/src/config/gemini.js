@@ -30,15 +30,14 @@ Requirements:
 - Each round MUST contain exactly 5 questions
 - Questions must be tailored to the candidate's skills, projects, and experience
 - Avoid generic questions
-- Questions should resemble real software engineering interviews
 - Mix conceptual, practical, and scenario-based questions
 
 Each question MUST include:
 
 - question
-- answer (clear, concise, ideal interview answer)
+- answer
 - difficulty (easy | medium | hard)
-- focus area (e.g., authentication, database design, system design, teamwork)
+- focus
 
 Return ONLY valid JSON.
 
@@ -46,52 +45,59 @@ Format:
 
 {
   "rounds": {
-    "technical": [
-      {
-        "question": "",
-        "answer": "",
-        "difficulty": "",
-        "focus": ""
-      }
-    ],
+    "technical": [],
     "project": [],
     "experience": [],
     "hr": []
   }
 }
-
-Strict Rules:
-- Do NOT include markdown
-- Do NOT include explanations
-- Return JSON only
 `;
 
-  const response = await groq.chat.completions.create({
-    model: "llama-3.1-8b-instant",
-    messages: [
-      {
-        role: "system",
-        content: "You generate structured JSON responses only."
-      },
-      {
-        role: "user",
-        content: prompt
-      }
-    ],
-    temperature: 0.4
-  });
+ const response = await groq.chat.completions.create({
+  model: "llama-3.3-70b-versatile",
+  messages: [
+    {
+      role: "system",
+      content: "Return strictly valid JSON. No markdown."
+    },
+    {
+      role: "user",
+      content: prompt
+    }
+  ],
+  temperature: 0.3,
+  max_tokens: 4000
+});
 
   const rawOutput = response.choices[0].message.content;
 
-  const jsonMatch = rawOutput.match(/\{[\s\S]*\}/);
+  console.log("AI RAW OUTPUT:\n", rawOutput);
+
+  // Remove markdown if present
+  let cleaned = rawOutput
+    .replace(/```json/g, "")
+    .replace(/```/g, "")
+    .trim();
+
+  // Extract JSON block
+  const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
 
   if (!jsonMatch) {
-    throw new Error("Invalid AI response format");
+    throw new Error("AI did not return JSON");
   }
 
-  const parsed = JSON.parse(jsonMatch[0]);
+  let jsonString = jsonMatch[0];
 
-  return parsed;
+  // Remove trailing commas (common AI mistake)
+  jsonString = jsonString.replace(/,\s*([\]}])/g, "$1");
+
+  try {
+    const parsed = JSON.parse(jsonString);
+    return parsed;
+  } catch (err) {
+    console.error("❌ JSON Parse Failed\n", jsonString);
+    throw new Error("AI returned malformed JSON");
+  }
 };
 
 
