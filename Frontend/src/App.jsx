@@ -2,26 +2,26 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
-import Landing from "./pages/Landing";
-import { Login } from "./pages/Login";
-import { Register } from "./pages/Register";
+import Landing from "./pages/Landing.jsx";
+import { Login } from "./pages/Login.jsx";
+import { Register } from "./pages/Register.jsx";
 
-import { CandidateDashboard } from "./pages/candidate/Dashboard";
-import { MockInterview } from "./pages/candidate/MockInterview";
-import { ResumeAnalyzer } from "./pages/candidate/ResumeAnalyzer";
-import { CoverLetter } from "./pages/candidate/CoverLetter";
-import { InterviewPrep } from "./pages/candidate/InterviewPrep";
-import { Jobs } from "./pages/candidate/Jobs";
-import { AppliedJobs } from "./pages/candidate/AppliedJobs";
-import { JobMatch } from "./pages/candidate/JobMatch";
-import { JobScraper } from "./pages/candidate/JobScraper";
-import { ReferralAgent } from './pages/candidate/ReferralAgent';
+import { CandidateDashboard } from "./pages/candidate/Dashboard.jsx";
+import { MockInterview } from "./pages/candidate/MockInterview.jsx";
+import { ResumeAnalyzer } from "./pages/candidate/ResumeAnalyzer.jsx";
+import { CoverLetter } from "./pages/candidate/CoverLetter.jsx";
+import { InterviewPrep } from "./pages/candidate/InterviewPrep.jsx";
+import { Jobs } from "./pages/candidate/Jobs.jsx";
+import { AppliedJobs } from "./pages/candidate/AppliedJobs.jsx";
+import { JobMatch } from "./pages/candidate/JobMatch.jsx";
+import { JobScraper } from "./pages/candidate/JobScraper.jsx";
+import { ReferralAgent } from './pages/candidate/ReferralAgent.jsx';
 
-import { RecruiterDashboard } from "./pages/recruiter/Dashboard";
-import { PostJob } from "./pages/recruiter/PostJob";
-import { ManageJobs } from "./pages/recruiter/ManageJobs";
-import { Applicants } from "./pages/recruiter/Applicants";
-import ProjectAnalyzer  from "./pages/recruiter/GithubAgent";
+import { RecruiterDashboard } from "./pages/recruiter/Dashboard.jsx";
+import { PostJob } from "./pages/recruiter/PostJob.jsx";
+import { ManageJobs } from "./pages/recruiter/ManageJobs.jsx";
+import { Applicants } from "./pages/recruiter/Applicants.jsx";
+import ProjectAnalyzer  from "./pages/recruiter/GithubAgent.jsx";
 
 function App() {
   return (

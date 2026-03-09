@@ -3,9 +3,9 @@ import { motion } from "framer-motion";
 import { Calendar, MapPin, Building2 } from "lucide-react";
 
 import { DashboardLayout } from "../../layouts/DashboardLayout";
-import { Card } from "../../components/Card";
+import { Card } from "../../components/Card.jsx";
 
-import { applicationService } from "../../services/applicationService";
+import { applicationService } from "../../services/applicationService.js";
 
 export const AppliedJobs = () => {
 
