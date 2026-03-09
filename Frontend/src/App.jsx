@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
-import Landing from "./pages/landing";
+import Landing from "./pages/Landing";
 import { Login } from "./pages/Login";
 import { Register } from "./pages/Register";
 
@@ -14,7 +14,7 @@ import { InterviewPrep } from "./pages/candidate/InterviewPrep";
 import { Jobs } from "./pages/candidate/Jobs";
 import { AppliedJobs } from "./pages/candidate/AppliedJobs";
 import { JobMatch } from "./pages/candidate/JobMatch";
-import { JobScraper } from "./pages/candidate/jobScraper";
+import { JobScraper } from "./pages/candidate/JobScraper";
 import { ReferralAgent } from './pages/candidate/ReferralAgent';
 
 import { RecruiterDashboard } from "./pages/recruiter/Dashboard";
